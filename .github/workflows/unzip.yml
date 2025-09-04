@@ -1,4 +1,6 @@
 name: Unzip and commit app
+permissions:
+  contents: write
 
 on:
   workflow_dispatch:

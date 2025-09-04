@@ -1,0 +1,24 @@
+name: Unzip and commit app
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 352-legends-dj-app-sprint4-ghpages.zip
+
+jobs:
+  unzip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          persist-credentials: true
+      - name: Unzip app contents
+        run: |
+          unzip -o 352-legends-dj-app-sprint4-ghpages.zip -d .
+          rm 352-legends-dj-app-sprint4-ghpages.zip
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Unzip app contents" || echo "No changes to commit"
+          git push

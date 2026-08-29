@@ -29,7 +29,7 @@ jobs:
           grep -q "music-stop-fade-v1.js" bootstrap.js
           grep -q "supports_volume" ios-volume-output-v1.js
           grep -q "USE .*VOLUME-CAPABLE DEVICE\|volume-controllable Spotify Connect output" ios-volume-output-v1.js
-          grep -q "FADE_MS = 2000" music-stop-fade-v1.js
+          grep -q "FADE_MS = 1000" music-stop-fade-v1.js
           grep -q "streaming user-read-playback-state" core-v3.js
           grep -q "loadPublishedGame('')" bootstrap.js
           grep -q "spotify-auth" bootstrap.js
@@ -76,12 +76,12 @@ jobs:
         shell: bash
         run: |
           CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
-          timeout 40s "$CHROME" --headless=new --no-sandbox --disable-gpu --virtual-time-budget=7000 --dump-dom "http://127.0.0.1:8080/tests/music-stop-fade-uat.html" >/tmp/music-fade-uat.html
+          timeout 40s "$CHROME" --headless=new --no-sandbox --disable-gpu --virtual-time-budget=5000 --dump-dom "http://127.0.0.1:8080/tests/music-stop-fade-uat.html" >/tmp/music-fade-uat.html
           cat /tmp/music-fade-uat.html
           grep -q 'data-uat="PASS"' /tmp/music-fade-uat.html
-          grep -q 'Spotify Stop Music fades for about 2 seconds' /tmp/music-fade-uat.html
+          grep -q 'Spotify Stop Music fades for about 1 second' /tmp/music-fade-uat.html
           grep -q 'Spotify fade reaches zero before pause' /tmp/music-fade-uat.html
-          grep -q 'Uploaded music Stop Music also fades for about 2 seconds' /tmp/music-fade-uat.html
+          grep -q 'Uploaded music Stop Music also fades for about 1 second' /tmp/music-fade-uat.html
           grep -q 'LIVE/STOP ALL immediate stop function remains unmodified' /tmp/music-fade-uat.html
       - name: iOS browser audio UAT
         shell: bash

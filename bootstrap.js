@@ -146,7 +146,7 @@ function disconnectSpotifySession(){
 const callbackHandled=await handleServerSpotifyCallback();
 if(!callbackHandled){
   installAppleSdkBlocker();
-  for(const src of ['./core-v3.js?v=spotify-connect-v8','./spotify-playback-v4.js?v=spotify-connect-v8','./app-part4.js?v=spotify-connect-v8','./app-part3.js?v=spotify-connect-v8']){
+  for(const src of ['./core-v3.js?v=chrome-browser-audio-v9','./spotify-playback-v4.js?v=chrome-browser-audio-v9','./spotify-browser-player-v5.js?v=chrome-browser-audio-v9','./app-part4.js?v=chrome-browser-audio-v9','./app-part3.js?v=chrome-browser-audio-v9']){
     await new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=()=>reject(new Error('Failed to load '+src));document.body.appendChild(s);});
   }
 
@@ -183,10 +183,10 @@ if(!callbackHandled){
       status.textContent='Spotify Premium connected • Apple device uses Spotify Connect mode.';
     }else if(authorized&&state.spotifySdkReady){
       button.textContent='DISCONNECT SPOTIFY';
-      status.textContent='Spotify Premium connected • GameDay player ready.';
+      status.textContent='Spotify Premium connected • GameDay Browser Player ready in this tab.';
     }else if(authorized){
       button.textContent='DISCONNECT SPOTIFY';
-      status.textContent='Spotify Premium authorized • starting the GameDay player…';
+      status.textContent='Spotify Premium authorized • starting the GameDay Browser Player…';
     }else if(last?.ok===false&&Date.now()-Number(last.at||0)<30*60*1000){
       button.textContent='CONNECT SPOTIFY';
       status.textContent=last.detail||friendlySpotifyError(last.error);

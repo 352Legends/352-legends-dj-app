@@ -115,7 +115,7 @@ function disconnectSpotifySession(){
 
 const callbackHandled=await handleServerSpotifyCallback();
 if(!callbackHandled){
-  for(const src of ['./core-v3.js?v=gameday-mixer-v11','./spotify-playback-v4.js?v=gameday-mixer-v11','./spotify-browser-player-v6.js?v=gameday-mixer-v11','./gameday-mixer-v1.js?v=gameday-mixer-v11','./app-part4.js?v=gameday-mixer-v11','./app-part3.js?v=gameday-mixer-v11']){
+  for(const src of ['./core-v3.js?v=music-fade-v12','./spotify-playback-v4.js?v=music-fade-v12','./spotify-browser-player-v6.js?v=music-fade-v12','./gameday-mixer-v1.js?v=music-fade-v12','./music-stop-fade-v1.js?v=music-fade-v12','./app-part4.js?v=music-fade-v12','./app-part3.js?v=music-fade-v12']){
     await new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=()=>reject(new Error('Failed to load '+src));document.body.appendChild(s);});
   }
   const params=new URLSearchParams(location.search);

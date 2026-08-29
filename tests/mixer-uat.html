@@ -1,0 +1,23 @@
+<!doctype html><html><body data-uat="RUNNING">
+<label class="mixer-control"><span><b>Announcements & Effects</b><em id="soundVolumeLabel">90%</em></span><input id="soundVolume" type="range" min="0" max="100" value="90"></label>
+<label class="mixer-control"><span><b>Music</b><em id="musicVolumeLabel">80%</em></span><input id="musicVolume" type="range" min="0" max="100" value="80"></label>
+<label class="gdsp-volume"><span><b>Spotify Volume</b><em id="gdspVolumeLabel">80%</em></span><input id="gdspVolume" type="range" min="0" max="100" value="80"></label>
+<div id="spotifyConnectStatus"></div><div id="gdspStatus"></div><div id="soundboardStartMusicStatus"></div><pre id="results"></pre>
+<script>
+window.__calls=[];window.__errors=[];addEventListener('error',e=>__errors.push(String(e.message||e.error)));
+let soundVolume=.9,musicVolume=.8,announcementActive=false,musicSource='SPOTIFY';const DUCK_FACTOR=Math.pow(10,-3/20);let spotifyVolumeTimer=null;let spotifySdkDeviceId='sdk1',spotifySelectedDeviceId='sdk1',spotifyNeedsScopeUpgrade=false;let spotifyDevices=[{id:'sdk1',name:'GameDay Browser Player',supports_volume:true}];
+class G{constructor(v=1){this.value=v}cancelScheduledValues(){}setTargetAtTime(v){this.value=v}};let audioCtx={currentTime:0,destination:{},createDynamicsCompressor(){return{threshold:{value:0},knee:{value:0},ratio:{value:0},attack:{value:0},release:{value:0},connect(){}}}};let soundGain={gain:new G(),connect(){},disconnect(){}};let musicGain={gain:new G(),connect(){}};
+let spotifyPlayer={setVolume(v){__calls.push(['sdk.setVolume',v]);return Promise.resolve()}};
+async function spotifyAuthorized(){return true} async function selectedSpotifyDevice(){return spotifyDevices[0]} async function spotifyApi(){return null}
+function setMixerStatus(id,text,mode){__calls.push(['status',id,text,mode]);} function applySoundVolume(){} function applyLocalVolume(){} function renderSpotifyPlayer(){}
+function ensureAudioGraph(){return audioCtx} function syncGainValues(){soundGain.gain.setTargetAtTime(soundVolume,0,0);musicGain.gain.setTargetAtTime(musicVolume*(announcementActive?DUCK_FACTOR:1),0,0)}
+async function setSpotifyVolume(){} function scheduleSpotifyVolume(){}
+document.getElementById('musicVolume').addEventListener('input',e=>{musicVolume=Number(e.target.value)/100;scheduleSpotifyVolume(announcementActive)});document.getElementById('soundVolume').addEventListener('input',e=>{soundVolume=Number(e.target.value)/100;syncGainValues()});
+</script><script src="../gameday-mixer-v1.js"></script><script>
+(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms)),out=[],ok=(n,v,d='')=>out.push({name:n,pass:!!v,detail:d});
+const m=document.getElementById('musicVolume');m.value='40';m.dispatchEvent(new Event('input',{bubbles:true}));await sleep(220);ok('Spotify fader sets browser-player volume',__calls.some(x=>x[0]==='sdk.setVolume'&&Math.abs(x[1]-.4)<.02),JSON.stringify(__calls));
+announcementActive=true;scheduleSpotifyVolume(true);await sleep(220);ok('announcement ducks Spotify by 3 dB',__calls.some(x=>x[0]==='sdk.setVolume'&&x[1]>.27&&x[1]<.30),JSON.stringify(__calls));
+announcementActive=false;scheduleSpotifyVolume(false);await sleep(220);const vols=__calls.filter(x=>x[0]==='sdk.setVolume').map(x=>x[1]);ok('Spotify volume restores to user mix',Math.abs(vols[vols.length-1]-.4)<.02,JSON.stringify(vols));
+ok('player and top music sliders stay synchronized',document.getElementById('gdspVolume').value==='40',document.getElementById('gdspVolume').value);ok('desktop mode remains true Spotify volume',__gamedayMixerV1.state().ios===false,JSON.stringify(__gamedayMixerV1.state()));ok('no errors',__errors.length===0,JSON.stringify(__errors));
+document.getElementById('results').textContent=JSON.stringify(out,null,2);document.body.dataset.uat=out.every(x=>x.pass)?'PASS':'FAIL';})();
+</script></body></html>

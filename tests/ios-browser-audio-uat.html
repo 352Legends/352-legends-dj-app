@@ -1,0 +1,48 @@
+<!doctype html><html><head><meta charset="utf-8"></head><body>
+<div id="toast"></div><div id="spotifyConnectStatus"></div><div id="gdspStatus"></div><div id="soundboardStartMusicStatus"></div>
+<div id="statebar"><button data-state="LIVE" aria-pressed="false">LIVE PLAY</button></div>
+<button id="spotifySourceBtn" class="on">SPOTIFY</button>
+<button id="soundboardStartMusic">▶ START MUSIC</button><button id="stopMusic">▶ START MUSIC</button><button id="musicPlayBtn">▶ PLAY MUSIC</button><button id="nextTrackBtn">NEXT</button><button id="gdspNext">NEXT</button><button id="gdspPrev">PREV</button>
+<select id="gdspDeviceSelect"><option value="sdk-ios">GameDay Browser Player</option></select>
+<pre id="results">RUNNING</pre>
+<script>
+window.__events=[];window.__errors=[];window.addEventListener('error',e=>__errors.push(String(e.message||e.error)));
+window.__gamedayIOSWebPlaybackMode=true;
+window.currentGame={spotifyUrl:'https://open.spotify.com/playlist/ABCDEFGHIJKLMNOPQRSTUV?si=test'};
+window.spotifySelectedDeviceId='';window.spotifyPlaying=false;window.musicSource='SPOTIFY';window.musicVolume=.78;window.announcementActive=false;window.DUCK_FACTOR=.7079457844;
+let sdkPaused=true;
+window.spotifyPlayer={
+ activateElement(){__events.push(['sdk.activate']);return Promise.resolve()},
+ getCurrentState(){__events.push(['sdk.state',sdkPaused]);return Promise.resolve({paused:sdkPaused})},
+ resume(){__events.push(['sdk.resume']);return Promise.resolve()},
+ togglePlay(){__events.push(['sdk.toggle']);sdkPaused=false;return Promise.resolve()},
+ nextTrack(){__events.push(['sdk.next']);return Promise.resolve()},
+ previousTrack(){__events.push(['sdk.prev']);return Promise.resolve()}
+};
+window.spotifyAuthorized=async()=>true;window.ensureSpotifySdk=async()=>true;
+window.__gamedayDebug={state:()=>({spotifySdkReady:true,spotifySdkDeviceId:'sdk-ios',spotifyAccountError:false})};
+window.renderMusicState=()=>__events.push(['render']);window.refreshSpotifyPlayback=()=>__events.push(['refresh']);
+window.spotifyApi=async(path,opts={})=>{
+ __events.push(['api',path,String(opts.method||'GET').toUpperCase(),opts.body||'']);
+ if(path==='/me/player'&&String(opts.method||'GET').toUpperCase()==='GET')return {device:{id:'sdk-ios'}};
+ if(path==='/me/player/devices')return {devices:[{id:'sdk-ios',name:'GameDay Browser Player',is_active:true}]};
+ if(path.startsWith('/playlists/'))return {items:{total:6}};
+ return null;
+};
+</script>
+<script src="../spotify-browser-player-v6.js"></script>
+<script>
+(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms)),out=[],ok=(name,val,detail='')=>out.push({name,pass:!!val,detail});await sleep(120);document.getElementById('soundboardStartMusic').click();await sleep(1300);
+const activation=__events.findIndex(e=>e[0]==='sdk.activate');const firstApi=__events.findIndex(e=>e[0]==='api');
+const transfer=__events.find(e=>e[0]==='api'&&e[1]==='/me/player'&&e[2]==='PUT');const play=__events.find(e=>e[0]==='api'&&e[1].includes('/me/player/play'));
+ok('iOS activateElement runs before network requests',activation>=0&&firstApi>activation,JSON.stringify(__events));
+ok('iOS browser player receives playback transfer',!!transfer&&JSON.parse(transfer[3]).device_ids?.[0]==='sdk-ios',JSON.stringify(transfer));
+ok('iOS Start Playback targets browser SDK device',!!play&&play[1].includes('device_id=sdk-ios'),JSON.stringify(play));
+ok('iOS autoplay recovery calls local resume',__events.some(e=>e[0]==='sdk.resume'),JSON.stringify(__events));
+ok('iOS silent-playing recovery calls local togglePlay',__events.some(e=>e[0]==='sdk.toggle'),JSON.stringify(__events));
+ok('iOS local SDK ends unpaused',sdkPaused===false,String(sdkPaused));
+ok('GameDay marks Spotify playing only after local recovery',spotifyPlaying===true,String(spotifyPlaying));
+ok('iOS status identifies browser audio',document.getElementById('gdspStatus').textContent.includes('iOS audio'),document.getElementById('gdspStatus').textContent);
+ok('no page errors',__errors.length===0,JSON.stringify(__errors));
+document.getElementById('results').textContent=JSON.stringify(out,null,2);document.body.dataset.uat=out.every(x=>x.pass)?'PASS':'FAIL';})();
+</script></body></html>

@@ -1,0 +1,50 @@
+<!doctype html>
+<html><head><meta charset="utf-8"></head><body data-uat="PENDING">
+<button id="stopMusic">■ STOP MUSIC</button><div id="dockDetail">Music playing</div><div id="toast"></div><pre id="results"></pre>
+<script>
+window.__events=[];window.__errors=[];window.addEventListener('error',e=>__errors.push(String(e.message||e.error)));
+const mark=(name,value)=>__events.push([name,value,performance.now()]);
+let musicSource='SPOTIFY',musicVolume=.8,announcementActive=false,DUCK_FACTOR=Math.pow(10,-3/20);
+let spotifyPlaying=true,spotifySdkDeviceId='sdk1',spotifySelectedDeviceId='sdk1';
+let localPlaying=false,previewAudio=null,previewKind=null,musicAudio=null;
+let routedMedia=new WeakSet();
+let audioCtx={get currentTime(){return performance.now()/1000;}};
+let musicGain={gain:{cancelScheduledValues(){},setTargetAtTime(v){mark('local.gain',Number(v.toFixed(4)));}}};
+let spotifyPlayer={setVolume:async v=>mark('spotify.volume',Number(v.toFixed(4)))};
+async function pauseSpotify(){mark('spotify.pause',true);spotifyPlaying=false;}
+function pauseLocal(reset){mark('local.pause',reset);localPlaying=false;if(musicAudio&&reset)musicAudio.currentTime=0;}
+function applyLocalVolume(){mark('local.restore',musicVolume);musicGain.gain.setTargetAtTime(musicVolume,audioCtx.currentTime,.01);}
+function renderMusicState(){const b=document.getElementById('stopMusic');const playing=musicSource==='LOCAL'?localPlaying:spotifyPlaying;b.textContent=playing?'■ STOP MUSIC':'▶ START MUSIC';}
+function msg(t){document.getElementById('toast').textContent=t;}
+function stopMusic(){mark('emergency.stopMusic',true);spotifyPlaying=false;localPlaying=false;}
+const emergencyStopReference=stopMusic;
+window.__gamedayMixerV1={state:()=>({ios:false,iosVolumeMode:'sdk'}),setSpotifyVolume:async v=>{mark('remote.volume',v);return true;}};
+</script>
+<script src="../music-stop-fade-v1.js"></script>
+<script>
+(async()=>{
+ const out=[],ok=(name,val,detail='')=>out.push({name,pass:!!val,detail});
+ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+ await sleep(80);
+ const button=document.getElementById('stopMusic');
+ const spotifyStart=performance.now();button.click();
+ await sleep(2350);
+ const sv=__events.filter(e=>e[0]==='spotify.volume');
+ const sp=__events.find(e=>e[0]==='spotify.pause');
+ ok('Spotify Stop Music fades for about 2 seconds',!!sp&&sp[2]-spotifyStart>=1900&&sp[2]-spotifyStart<2350,String(sp?.[2]-spotifyStart));
+ ok('Spotify fade reaches zero before pause',sv.some(e=>e[1]===0),JSON.stringify(sv));
+ ok('Spotify fade uses multiple descending steps',sv.length>=10&&sv.slice(0,-1).some((e,i,a)=>i===0||e[1]<=a[i-1][1]),JSON.stringify(sv));
+ ok('Spotify mixer level restores after stop',Math.abs((sv.at(-1)?.[1]??0)-.8)<.02,JSON.stringify(sv.at(-1)));
+ ok('master button returns to Start Music',button.textContent.includes('START MUSIC'),button.textContent);
+
+ musicSource='LOCAL';localPlaying=true;musicAudio={currentTime:12,volume:.8,pause(){mark('local.audio.pause',true);}};routedMedia.add(musicAudio);button.textContent='■ STOP MUSIC';
+ const localStart=performance.now();await window.__gamedayMusicFadeV1.fadeStopMusic();
+ const lp=__events.filter(e=>e[0]==='local.pause').at(-1);const lg=__events.filter(e=>e[0]==='local.gain');
+ ok('Uploaded music Stop Music also fades for about 2 seconds',!!lp&&lp[2]-localStart>=1900&&lp[2]-localStart<2350,String(lp?.[2]-localStart));
+ ok('uploaded music gain reaches zero',lg.some(e=>e[1]===0),JSON.stringify(lg));
+ ok('uploaded music gain restores after stop',Math.abs((lg.at(-1)?.[1]??0)-.8)<.02,JSON.stringify(lg.at(-1)));
+ ok('LIVE/STOP ALL immediate stop function remains unmodified',stopMusic===emergencyStopReference,String(stopMusic===emergencyStopReference));
+ ok('no page errors',__errors.length===0,JSON.stringify(__errors));
+ document.getElementById('results').textContent=JSON.stringify(out,null,2);document.body.dataset.uat=out.every(x=>x.pass)?'PASS':'FAIL';
+})();
+</script></body></html>

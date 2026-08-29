@@ -20,6 +20,10 @@ jobs:
           ! grep -E "sprint[0-9]|core-v2" bootstrap.js
           grep -q "streaming user-read-playback-state" core-v3.js
           grep -q "loadPublishedGame('')" bootstrap.js
+          grep -q "SPOTIFY_PKCE_MIRROR_PREFIX" bootstrap.js
+          grep -q "SPOTIFY_PKCE_TTL_MS" bootstrap.js
+          grep -q "syncSpotifyHeader" bootstrap.js
+          grep -q "Spotify Premium connected" bootstrap.js
           grep -q "assetReferenceCount" app-part3.js
           grep -q "25\*1024\*1024" app-part3.js
       - name: Start local static site

@@ -38,6 +38,10 @@
     return !$('spotifySourceBtn') || $('spotifySourceBtn').classList.contains('on');
   }
 
+  function isSpotifyPlayingNow() {
+    try { return typeof spotifyPlaying !== 'undefined' && !!spotifyPlaying; } catch (_e) { return false; }
+  }
+
   function currentSdkPlayer() {
     try {
       if (typeof spotifyPlayer !== 'undefined' && spotifyPlayer) return spotifyPlayer;
@@ -145,9 +149,6 @@
     if (state && !state.paused) return true;
 
     if (IOS_WEB_PLAYBACK) {
-      // Spotify's mobile-browser guidance notes that after transfer the user may need a
-      // local play/toggle action. This call is made only after activateElement() was invoked
-      // synchronously from the same START MUSIC gesture.
       try { await player.togglePlay?.(); } catch (_e) {}
       const deadline = Date.now() + IOS_LOCAL_PLAY_TIMEOUT_MS;
       while (Date.now() < deadline) {
@@ -165,7 +166,6 @@
     if (startBusy) return;
     if (isLivePlay()) return toast('Music locked during LIVE PLAY');
 
-    // Critical on iOS: this must happen synchronously inside the user's tap before any await.
     const activatedFromGesture = activateBrowserAudioNow();
     if (IOS_WEB_PLAYBACK && !activatedFromGesture) {
       try { ensurePlayerCreated(); } catch (_e) {}
@@ -185,9 +185,6 @@
     try {
       setPlayerStatus('Preparing GameDay Browser Player…');
       const browser = await waitForBrowserPlayer();
-
-      // Re-call activation after readiness as a harmless reinforcement; the important activation
-      // already occurred synchronously above on iOS.
       activateBrowserAudioNow();
 
       const playlist = strictPlaylistIdentity(typeof currentGame !== 'undefined' ? currentGame?.spotifyUrl : '');
@@ -304,7 +301,7 @@
     if (state.spotifySdkReady && state.spotifySdkDeviceId) {
       try { if (typeof spotifySelectedDeviceId !== 'undefined') spotifySelectedDeviceId = state.spotifySdkDeviceId; } catch (_e) {}
       if ($('gdspDeviceSelect')) $('gdspDeviceSelect').value = state.spotifySdkDeviceId;
-      if (IOS_WEB_PLAYBACK) setPlayerStatus('Spotify Premium connected • iOS GameDay Browser Player ready. Tap START MUSIC.');
+      if (IOS_WEB_PLAYBACK && !startBusy && !isSpotifyPlayingNow()) setPlayerStatus('Spotify Premium connected • iOS GameDay Browser Player ready. Tap START MUSIC.');
     }
   }
 
@@ -312,13 +309,13 @@
     if (!IOS_WEB_PLAYBACK) return;
     try {
       if (typeof spotifyAuthorized === 'function' && await spotifyAuthorized()) {
-        setPlayerStatus('Preparing iOS GameDay Browser Player…');
+        if (!startBusy && !isSpotifyPlayingNow()) setPlayerStatus('Preparing iOS GameDay Browser Player…');
         await ensurePlayerCreated();
         await waitForBrowserPlayer();
         wire();
       }
     } catch (e) {
-      setPlayerStatus('iOS browser player unavailable: ' + String(e?.message || e));
+      if (!isSpotifyPlayingNow()) setPlayerStatus('iOS browser player unavailable: ' + String(e?.message || e));
     }
   }
 

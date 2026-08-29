@@ -38,7 +38,7 @@
     <section class="panel"><h2>Uploaded Music</h2><div id="localTracks" class="tracklist"><div class="tiny">No uploaded tracks in this published game.</div></div></section>
   </div><div>
     <section class="spotify-shell"><div class="spotify-head"><b>Spotify Premium Game-Day Player</b><span id="spotifyStatus">PREMIUM REQUIRED</span></div></section>
-    <div class="note" style="margin-top:8px">GameDay uses Spotify Premium authentication with Spotify Connect controls on Apple Safari/iPhone/iPad and the Web Playback SDK on supported non-Apple browsers. There is no anonymous preview player.</div>
+    <div class="note" style="margin-top:8px">GameDay uses Spotify Premium authentication and Spotify's Web Playback SDK to play directly inside supported desktop and mobile browsers, including iOS when browser audio is activated by a tap. There is no anonymous preview player.</div>
   </div></div></div>
 </section>
 
@@ -56,6 +56,6 @@
 
 <div class="dock"><div class="dock-inner dock-simple"><div class="dock-status"><b id="dockSource">Spotify Premium</b><small id="dockDetail">Music stopped</small></div><button class="stopmusic is-start" id="stopMusic" aria-pressed="false">▶ START MUSIC</button></div></div>
 <div class="toast" id="toast"></div>
-<script type="module" src="./bootstrap.js?v=chrome-browser-audio-v9"></script>
+<script type="module" src="./bootstrap.js?v=ios-browser-audio-v10"></script>
 </body>
 </html>

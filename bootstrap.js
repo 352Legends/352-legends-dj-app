@@ -7,6 +7,29 @@ const SPOTIFY_PROFILE_KEY='gameday.spotify.profile.v1';
 const SPOTIFY_STATUS_KEY='gameday.spotify.auth.status.v1';
 const APP_HOME='https://352legends.github.io/352-legends-dj-app/';
 
+function isAppleWebKit(){
+  const ua=String(navigator.userAgent||'');
+  const platform=String(navigator.platform||'');
+  const ios=/iPad|iPhone|iPod/.test(ua)||(platform==='MacIntel'&&Number(navigator.maxTouchPoints||0)>1);
+  const safari=/Safari\//.test(ua)&&!/Chrome|Chromium|CriOS|FxiOS|EdgiOS|OPiOS|Android/.test(ua);
+  return ios||safari;
+}
+const APPLE_SPOTIFY_CONNECT_MODE=isAppleWebKit();
+window.__gamedayAppleSpotifyConnectMode=APPLE_SPOTIFY_CONNECT_MODE;
+
+function installAppleSdkBlocker(){
+  if(!APPLE_SPOTIFY_CONNECT_MODE)return;
+  const original=document.body.appendChild.bind(document.body);
+  document.body.appendChild=function(node){
+    const src=String(node?.src||'');
+    if(node?.tagName==='SCRIPT'&&src.includes('sdk.scdn.co/spotify-player.js')){
+      setTimeout(()=>{try{node.onerror?.(new Event('error'));}catch(_e){}},0);
+      return node;
+    }
+    return original(node);
+  };
+}
+
 function saveSpotifyStatus(status){
   try{localStorage.setItem(SPOTIFY_STATUS_KEY,JSON.stringify({...status,at:Date.now()}));}catch(_e){}
 }
@@ -17,9 +40,11 @@ function readSpotifyTokenRecord(){
   try{return JSON.parse(localStorage.getItem(SPOTIFY_TOKEN_KEY)||'null');}catch(_e){return null;}
 }
 function cleanCurrentUrl(){
-  const u=new URL(location.href);
-  ['code','state','error'].forEach(k=>u.searchParams.delete(k));
-  return u.toString();
+  try{
+    const u=new URL(location.href);
+    ['code','state','error'].forEach(k=>u.searchParams.delete(k));
+    return u.toString();
+  }catch(_e){return APP_HOME;}
 }
 function friendlySpotifyError(code,detail=''){
   const d=String(detail||'').trim();
@@ -120,7 +145,8 @@ function disconnectSpotifySession(){
 
 const callbackHandled=await handleServerSpotifyCallback();
 if(!callbackHandled){
-  for(const src of ['./core-v3.js?v=spotify-playback-v7','./spotify-playback-v4.js?v=spotify-playback-v7','./app-part4.js?v=spotify-playback-v7','./app-part3.js?v=spotify-playback-v7']){
+  installAppleSdkBlocker();
+  for(const src of ['./core-v3.js?v=spotify-connect-v8','./spotify-playback-v4.js?v=spotify-connect-v8','./app-part4.js?v=spotify-connect-v8','./app-part3.js?v=spotify-connect-v8']){
     await new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=()=>reject(new Error('Failed to load '+src));document.body.appendChild(s);});
   }
 
@@ -152,6 +178,9 @@ if(!callbackHandled){
     }else if(state.spotifyNeedsScopeUpgrade){
       button.textContent='RECONNECT SPOTIFY';
       status.textContent='Spotify authorization is missing required Premium playback permissions.';
+    }else if(APPLE_SPOTIFY_CONNECT_MODE&&authorized){
+      button.textContent='DISCONNECT SPOTIFY';
+      status.textContent='Spotify Premium connected • Apple device uses Spotify Connect mode.';
     }else if(authorized&&state.spotifySdkReady){
       button.textContent='DISCONNECT SPOTIFY';
       status.textContent='Spotify Premium connected • GameDay player ready.';

@@ -20,9 +20,10 @@ jobs:
           ! grep -E "sprint[0-9]|core-v2" bootstrap.js
           grep -q "streaming user-read-playback-state" core-v3.js
           grep -q "loadPublishedGame('')" bootstrap.js
-          grep -q "SPOTIFY_PKCE_MIRROR_PREFIX" bootstrap.js
-          grep -q "SPOTIFY_PKCE_TTL_MS" bootstrap.js
-          grep -q "syncSpotifyHeader" bootstrap.js
+          grep -q "spotify-auth" bootstrap.js
+          grep -q "handleServerSpotifyCallback" bootstrap.js
+          grep -q "startServerSpotifyAuth" bootstrap.js
+          grep -q "SPOTIFY_ACCOUNT_NOT_ALLOWED" bootstrap.js
           grep -q "Spotify Premium connected" bootstrap.js
           grep -q "assetReferenceCount" app-part3.js
           grep -q "25\*1024\*1024" app-part3.js
@@ -51,4 +52,21 @@ jobs:
           assert g.get('spotifyClientId')
           assert isinstance(g.get('soundboardConfig'), list)
           print('root Home resolves published Spotify config for', g['slug'])
+          PY
+      - name: Spotify auth bridge start regression
+        shell: bash
+        run: |
+          curl -fsS -X POST "https://voynfqugirhtvmmmtpav.supabase.co/functions/v1/spotify-auth" \
+            -H 'Content-Type: application/json' \
+            --data '{"action":"start","slug":"352-vs-legends","return_url":"https://352legends.github.io/352-legends-dj-app/?game=352-vs-legends"}' >/tmp/spotify-auth.json
+          python3 - <<'PY'
+          import json, urllib.parse
+          x=json.load(open('/tmp/spotify-auth.json'))
+          assert x.get('auth_url','').startswith('https://accounts.spotify.com/authorize?')
+          q=urllib.parse.parse_qs(urllib.parse.urlparse(x['auth_url']).query)
+          assert q['client_id'][0]=='15a6851c05f84d058d2ca265381ab17c'
+          assert q['redirect_uri'][0]=='https://352legends.github.io/352-legends-dj-app/'
+          assert 'streaming' in q['scope'][0].split()
+          assert q['show_dialog'][0]=='true'
+          print('Spotify server PKCE bridge start passed')
           PY

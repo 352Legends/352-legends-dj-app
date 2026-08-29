@@ -115,7 +115,7 @@ function disconnectSpotifySession(){
 
 const callbackHandled=await handleServerSpotifyCallback();
 if(!callbackHandled){
-  for(const src of ['./core-v3.js?v=mobile-volume-v13','./spotify-playback-v4.js?v=mobile-volume-v13','./spotify-browser-player-v6.js?v=mobile-volume-v13','./gameday-mixer-v1.js?v=mobile-volume-v13','./ios-volume-output-v1.js?v=mobile-volume-v13','./music-stop-fade-v1.js?v=mobile-volume-v13','./app-part4.js?v=mobile-volume-v13','./app-part3.js?v=mobile-volume-v13']){
+  for(const src of ['./core-v3.js?v=music-fade-v14','./spotify-playback-v4.js?v=music-fade-v14','./spotify-browser-player-v6.js?v=music-fade-v14','./gameday-mixer-v1.js?v=music-fade-v14','./ios-volume-output-v1.js?v=music-fade-v14','./music-stop-fade-v1.js?v=music-fade-v14','./app-part4.js?v=music-fade-v14','./app-part3.js?v=music-fade-v14']){
     await new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=()=>reject(new Error('Failed to load '+src));document.body.appendChild(s);});
   }
   const params=new URLSearchParams(location.search);

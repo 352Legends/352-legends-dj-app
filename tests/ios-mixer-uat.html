@@ -1,0 +1,24 @@
+<!doctype html><html><body data-uat="RUNNING">
+<label class="mixer-control"><span><b>Announcements & Effects</b><em id="soundVolumeLabel">80%</em></span><input id="soundVolume" type="range" min="0" max="100" value="80"></label>
+<label class="mixer-control"><span><b>Music</b><em id="musicVolumeLabel">78%</em></span><input id="musicVolume" type="range" min="0" max="100" value="78"></label>
+<label class="gdsp-volume"><span><b>Spotify Volume</b><em id="gdspVolumeLabel">78%</em></span><input id="gdspVolume" type="range" min="0" max="100" value="78"></label>
+<div id="spotifyConnectStatus"></div><div id="gdspStatus"></div><div id="soundboardStartMusicStatus"></div><pre id="results"></pre>
+<script>
+window.__gamedayIOSWebPlaybackMode=true;window.__calls=[];window.__errors=[];addEventListener('error',e=>__errors.push(String(e.message||e.error)));
+let soundVolume=.8,musicVolume=.78,announcementActive=false,musicSource='SPOTIFY';const DUCK_FACTOR=Math.pow(10,-3/20);let spotifyVolumeTimer=null;let spotifySdkDeviceId='sdk-ios',spotifySelectedDeviceId='sdk-ios',spotifyNeedsScopeUpgrade=false;let spotifyDevices=[{id:'sdk-ios',name:'GameDay Browser Player',supports_volume:false}];
+class G{constructor(v=1){this.value=v}cancelScheduledValues(){}setTargetAtTime(v){this.value=v}};let compressorMade=false;let audioCtx={currentTime:0,destination:{},createDynamicsCompressor(){compressorMade=true;return{threshold:{value:0},knee:{value:0},ratio:{value:0},attack:{value:0},release:{value:0},connect(){}}}};let soundGain={gain:new G(),connect(){},disconnect(){}};let musicGain={gain:new G(),connect(){}};
+let spotifyPlayer={setVolume(v){__calls.push(['sdk.setVolume',v]);return Promise.resolve()}};
+async function spotifyAuthorized(){return true} async function selectedSpotifyDevice(){return spotifyDevices[0]} async function spotifyApi(path,opts={}){__calls.push(['api',path,opts.method||'GET']);return path==='/me/player'?{device:{id:'sdk-ios',volume_percent:null}}:null}
+function setMixerStatus(id,text,mode){__calls.push(['status',id,text,mode]);const n=document.getElementById(id)?.closest('.mixer-control');if(n){let s=n.querySelector('.mixer-runtime-status:not(.ios-mix-note)');if(!s){s=document.createElement('span');s.className='mixer-runtime-status';n.appendChild(s)}s.textContent=text;}}
+function applySoundVolume(){} function applyLocalVolume(){} function renderSpotifyPlayer(){}
+function ensureAudioGraph(){return audioCtx} function syncGainValues(){soundGain.gain.setTargetAtTime(soundVolume,0,0);musicGain.gain.setTargetAtTime(musicVolume,0,0)}
+async function setSpotifyVolume(){} function scheduleSpotifyVolume(){}
+document.getElementById('musicVolume').addEventListener('input',e=>{musicVolume=Number(e.target.value)/100;scheduleSpotifyVolume(announcementActive)});document.getElementById('soundVolume').addEventListener('input',e=>{soundVolume=Number(e.target.value)/100;syncGainValues()});
+window.__gamedayDebug={state:()=>({spotifySdkReady:true,spotifySdkDeviceId:'sdk-ios'})};
+</script><script src="../gameday-mixer-v1.js"></script><script>
+(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms)),out=[],ok=(n,v,d='')=>out.push({name:n,pass:!!v,detail:d});await sleep(850);
+const m=document.getElementById('musicVolume');m.value='50';m.dispatchEvent(new Event('input',{bubbles:true}));await sleep(250);ok('iOS detects locked Spotify browser volume',__gamedayMixerV1.state().iosVolumeMode==='relative',JSON.stringify(__gamedayMixerV1.state()));ok('iOS does not falsely call SDK setVolume',!__calls.some(x=>x[0]==='sdk.setVolume'),JSON.stringify(__calls));
+announcementActive=true;syncGainValues();ok('iOS backing mix lifts announcer channel',soundGain.gain.value>soundVolume&&soundGain.gain.value<=1.61,String(soundGain.gain.value));ok('iOS announcement limiter is installed',compressorMade&&__gamedayMixerV1.state().limiterInstalled,JSON.stringify(__gamedayMixerV1.state()));
+ok('iOS music fader is labeled as relative mix',document.getElementById('gdspVolumeLabel').textContent.includes('MIX'),document.getElementById('gdspVolumeLabel').textContent);ok('iOS explains physical Spotify volume',document.body.textContent.includes('device volume buttons'),document.body.textContent);ok('no errors',__errors.length===0,JSON.stringify(__errors));
+document.getElementById('results').textContent=JSON.stringify(out,null,2);document.body.dataset.uat=out.every(x=>x.pass)?'PASS':'FAIL';})();
+</script></body></html>

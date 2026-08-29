@@ -32,10 +32,10 @@ jobs:
         run: |
           CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
           test -n "$CHROME"
-          timeout 40s "$CHROME" --headless=new --no-sandbox --disable-gpu --virtual-time-budget=8000 --dump-dom "http://127.0.0.1:8080/tests/operator-uat.html" >/tmp/uat-dom.html
+          timeout 40s "$CHROME" --headless=new --no-sandbox --disable-gpu --virtual-time-budget=8000 --dump-dom "http://127.0.0.1:8080/tests/operator-uat.html?game=uat" >/tmp/uat-dom.html
           cat /tmp/uat-dom.html
           grep -q 'data-uat="PASS"' /tmp/uat-dom.html
-      - name: Public game API smoke test
+      - name: Root Home published-game regression
         shell: bash
         run: |
           curl -fsS "https://voynfqugirhtvmmmtpav.supabase.co/functions/v1/published-game" >/tmp/game.json
@@ -46,5 +46,5 @@ jobs:
           assert g.get('spotifyUrl','').startswith('https://open.spotify.com/playlist/')
           assert g.get('spotifyClientId')
           assert isinstance(g.get('soundboardConfig'), list)
-          print('root public game API smoke test passed for', g['slug'])
+          print('root Home resolves published Spotify config for', g['slug'])
           PY

@@ -120,7 +120,7 @@ function disconnectSpotifySession(){
 
 const callbackHandled=await handleServerSpotifyCallback();
 if(!callbackHandled){
-  for(const src of ['./core-v3.js?v=spotify-server-pkce-v6','./app-part4.js?v=spotify-server-pkce-v6','./app-part3.js?v=spotify-server-pkce-v6']){
+  for(const src of ['./core-v3.js?v=spotify-playback-v7','./spotify-playback-v4.js?v=spotify-playback-v7','./app-part4.js?v=spotify-playback-v7','./app-part3.js?v=spotify-playback-v7']){
     await new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=()=>reject(new Error('Failed to load '+src));document.body.appendChild(s);});
   }
 

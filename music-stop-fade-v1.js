@@ -1,5 +1,5 @@
 (() => {
-  const FADE_MS = 2000;
+  const FADE_MS = 1000;
   const STEP_MS = 100;
   const REMOTE_STEPS = 5;
   let fading = false;
@@ -24,7 +24,7 @@
         button.removeAttribute('aria-busy');
       }
     }
-    if (el('dockDetail') && active) el('dockDetail').textContent = 'Music fading out • 2 sec';
+    if (el('dockDetail') && active) el('dockDetail').textContent = 'Music fading out • 1 sec';
   }
 
   async function fadeLocalMusic(baseLevel) {
@@ -83,7 +83,7 @@
     }
 
     // Spotify's iOS browser stream can be physically volume-locked. Keep the Stop Music
-    // timing at two seconds, but do not claim a software fade where Spotify exposes no gain.
+    // timing at one second, but do not claim a software fade where Spotify exposes no gain.
     await sleep(FADE_MS);
     return { faded: false, capability: 'locked' };
   }

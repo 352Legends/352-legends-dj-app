@@ -7,28 +7,16 @@ const SPOTIFY_PROFILE_KEY='gameday.spotify.profile.v1';
 const SPOTIFY_STATUS_KEY='gameday.spotify.auth.status.v1';
 const APP_HOME='https://352legends.github.io/352-legends-dj-app/';
 
-function isAppleWebKit(){
+function isIOSWebBrowser(){
   const ua=String(navigator.userAgent||'');
   const platform=String(navigator.platform||'');
-  const ios=/iPad|iPhone|iPod/.test(ua)||(platform==='MacIntel'&&Number(navigator.maxTouchPoints||0)>1);
-  const safari=/Safari\//.test(ua)&&!/Chrome|Chromium|CriOS|FxiOS|EdgiOS|OPiOS|Android/.test(ua);
-  return ios||safari;
+  return /iPad|iPhone|iPod/.test(ua)||(platform==='MacIntel'&&Number(navigator.maxTouchPoints||0)>1);
 }
-const APPLE_SPOTIFY_CONNECT_MODE=isAppleWebKit();
-window.__gamedayAppleSpotifyConnectMode=APPLE_SPOTIFY_CONNECT_MODE;
-
-function installAppleSdkBlocker(){
-  if(!APPLE_SPOTIFY_CONNECT_MODE)return;
-  const original=document.body.appendChild.bind(document.body);
-  document.body.appendChild=function(node){
-    const src=String(node?.src||'');
-    if(node?.tagName==='SCRIPT'&&src.includes('sdk.scdn.co/spotify-player.js')){
-      setTimeout(()=>{try{node.onerror?.(new Event('error'));}catch(_e){}},0);
-      return node;
-    }
-    return original(node);
-  };
-}
+const IOS_SPOTIFY_BROWSER_MODE=isIOSWebBrowser();
+window.__gamedayIOSWebPlaybackMode=IOS_SPOTIFY_BROWSER_MODE;
+// Legacy compatibility flag. Apple browsers now use the real Web Playback SDK first;
+// Spotify Connect is only a fallback when the SDK itself cannot initialize.
+window.__gamedayAppleSpotifyConnectMode=false;
 
 function saveSpotifyStatus(status){
   try{localStorage.setItem(SPOTIFY_STATUS_KEY,JSON.stringify({...status,at:Date.now()}));}catch(_e){}
@@ -145,8 +133,7 @@ function disconnectSpotifySession(){
 
 const callbackHandled=await handleServerSpotifyCallback();
 if(!callbackHandled){
-  installAppleSdkBlocker();
-  for(const src of ['./core-v3.js?v=chrome-browser-audio-v9','./spotify-playback-v4.js?v=chrome-browser-audio-v9','./spotify-browser-player-v5.js?v=chrome-browser-audio-v9','./app-part4.js?v=chrome-browser-audio-v9','./app-part3.js?v=chrome-browser-audio-v9']){
+  for(const src of ['./core-v3.js?v=ios-browser-audio-v10','./spotify-playback-v4.js?v=ios-browser-audio-v10','./spotify-browser-player-v6.js?v=ios-browser-audio-v10','./app-part4.js?v=ios-browser-audio-v10','./app-part3.js?v=ios-browser-audio-v10']){
     await new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=()=>reject(new Error('Failed to load '+src));document.body.appendChild(s);});
   }
 
@@ -178,15 +165,12 @@ if(!callbackHandled){
     }else if(state.spotifyNeedsScopeUpgrade){
       button.textContent='RECONNECT SPOTIFY';
       status.textContent='Spotify authorization is missing required Premium playback permissions.';
-    }else if(APPLE_SPOTIFY_CONNECT_MODE&&authorized){
-      button.textContent='DISCONNECT SPOTIFY';
-      status.textContent='Spotify Premium connected • Apple device uses Spotify Connect mode.';
     }else if(authorized&&state.spotifySdkReady){
       button.textContent='DISCONNECT SPOTIFY';
-      status.textContent='Spotify Premium connected • GameDay Browser Player ready in this tab.';
+      status.textContent=IOS_SPOTIFY_BROWSER_MODE?'Spotify Premium connected • iOS GameDay Browser Player ready.':'Spotify Premium connected • GameDay Browser Player ready in this tab.';
     }else if(authorized){
       button.textContent='DISCONNECT SPOTIFY';
-      status.textContent='Spotify Premium authorized • starting the GameDay Browser Player…';
+      status.textContent=IOS_SPOTIFY_BROWSER_MODE?'Spotify Premium authorized • preparing iOS browser audio player…':'Spotify Premium authorized • starting the GameDay Browser Player…';
     }else if(last?.ok===false&&Date.now()-Number(last.at||0)<30*60*1000){
       button.textContent='CONNECT SPOTIFY';
       status.textContent=last.detail||friendlySpotifyError(last.error);

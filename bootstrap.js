@@ -115,7 +115,7 @@ function disconnectSpotifySession(){
 
 const callbackHandled=await handleServerSpotifyCallback();
 if(!callbackHandled){
-  for(const src of ['./core-v3.js?v=music-fade-v12','./spotify-playback-v4.js?v=music-fade-v12','./spotify-browser-player-v6.js?v=music-fade-v12','./gameday-mixer-v1.js?v=music-fade-v12','./music-stop-fade-v1.js?v=music-fade-v12','./app-part4.js?v=music-fade-v12','./app-part3.js?v=music-fade-v12']){
+  for(const src of ['./core-v3.js?v=mobile-volume-v13','./spotify-playback-v4.js?v=mobile-volume-v13','./spotify-browser-player-v6.js?v=mobile-volume-v13','./gameday-mixer-v1.js?v=mobile-volume-v13','./ios-volume-output-v1.js?v=mobile-volume-v13','./music-stop-fade-v1.js?v=mobile-volume-v13','./app-part4.js?v=mobile-volume-v13','./app-part3.js?v=mobile-volume-v13']){
     await new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=()=>reject(new Error('Failed to load '+src));document.body.appendChild(s);});
   }
   const params=new URLSearchParams(location.search);
@@ -148,8 +148,8 @@ if(!callbackHandled){
       status.textContent='Spotify authorization is missing required Premium playback permissions.';
     }else if(authorized&&state.spotifySdkReady){
       button.textContent='DISCONNECT SPOTIFY';
-      const mix=window.__gamedayMixerV1?.state?.();
-      status.textContent=IOS_SPOTIFY_BROWSER_MODE&&mix?.iosVolumeMode==='relative'?'Spotify Premium connected • iOS browser audio ready • device buttons set Spotify loudness; GameDay faders set the relative announcement mix.':IOS_SPOTIFY_BROWSER_MODE?'Spotify Premium connected • iOS GameDay Browser Player ready.':'Spotify Premium connected • GameDay Browser Player ready in this tab.';
+      const vol=window.__gamedayIOSVolumeOutputV1?.state?.();
+      status.textContent=IOS_SPOTIFY_BROWSER_MODE&&vol?.locked?'Spotify Premium connected • iOS browser audio ready • use iPhone/iPad volume buttons, or select a volume-capable Spotify Connect output for the GameDay fader.':IOS_SPOTIFY_BROWSER_MODE?'Spotify Premium connected • iOS GameDay Browser Player ready.':'Spotify Premium connected • GameDay Browser Player ready in this tab.';
     }else if(authorized){
       button.textContent='DISCONNECT SPOTIFY';
       status.textContent=IOS_SPOTIFY_BROWSER_MODE?'Spotify Premium authorized • preparing iOS browser audio player…':'Spotify Premium authorized • starting the GameDay Browser Player…';

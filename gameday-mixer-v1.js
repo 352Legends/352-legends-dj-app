@@ -52,26 +52,19 @@
     if (el('musicVolumeLabel')) el('musicVolumeLabel').textContent = musicPct + '%';
     if (el('soundVolumeLabel')) el('soundVolumeLabel').textContent = soundPct + '%';
     if (el('gdspVolume')) el('gdspVolume').value = String(musicPct);
-    if (el('gdspVolumeLabel')) el('gdspVolumeLabel').textContent = IOS && iosVolumeMode === 'relative' ? 'MIX ' + musicPct + '%' : musicPct + '%';
+    if (el('gdspVolumeLabel')) el('gdspVolumeLabel').textContent = musicPct + '%';
   }
 
   function setIOSMixCopy() {
     if (!IOS || iosVolumeMode !== 'relative') return;
     const top = el('musicVolume')?.closest('.mixer-control');
     const topLabel = top?.querySelector('span b');
-    if (topLabel) topLabel.textContent = 'Backing Track Mix';
+    if (topLabel) topLabel.textContent = 'Music';
     const playerLabel = el('gdspVolume')?.closest('.gdsp-volume')?.querySelector('span b');
-    if (playerLabel) playerLabel.textContent = 'Backing Track Mix (iOS)';
-    if (top && !top.querySelector('.ios-mix-note')) {
-      const note = document.createElement('span');
-      note.className = 'mixer-runtime-status ios-mix-note';
-      note.dataset.mode = 'warning';
-      note.textContent = 'iOS controls Spotify output with the device volume buttons. This fader sets the relative backing-track balance by lifting announcements up to +6 dB.';
-      top.appendChild(note);
-    }
-    if (typeof setMixerStatus === 'function') {
-      setMixerStatus('musicVolume', 'iOS backing mix • ' + Math.round(clamp(musicVolume) * 100) + '% target • device buttons set actual Spotify loudness', 'warning');
-    }
+    if (playerLabel) playerLabel.textContent = 'Spotify Volume';
+    top?.querySelector('.ios-mix-note')?.remove();
+    const runtime = top?.querySelector('.mixer-runtime-status');
+    if (runtime && /backing mix|backing-track/i.test(runtime.textContent || '')) runtime.remove();
     syncMixerLabels();
   }
 

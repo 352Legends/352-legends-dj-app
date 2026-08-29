@@ -30,7 +30,7 @@
       <div class="sound-section announcement-section"><div class="section-heading"><div><h3>Game Announcements</h3><p>Quarter, timeout, score, penalty and game announcements.</p></div><span class="section-chip">ANNOUNCE</span></div><div class="soundgrid" id="announcementsBoard"></div><div class="empty-sound hidden" id="announcementsEmpty">No game announcements are published for this game.</div></div>
       <div class="sound-section effect-section"><div class="section-heading"><div><h3>Sound Effects</h3><p>Stingers, horns, hits and other short effects.</p></div><span class="section-chip">FX</span></div><div class="soundgrid" id="effectsBoard"></div><div class="empty-sound hidden" id="effectsEmpty">No sound effects are published for this game.</div></div>
     </section>
-    <section class="panel"><div class="now" id="now"><b>Ready.</b> No announcement playing.</div><div class="note" style="margin-top:8px"><b>Automatic mix:</b> GameDay keeps announcements and music on separate mixer channels. On browsers with Spotify volume control, music ducks by 3 dB during announcements. On iOS, where Spotify locks browser-stream volume to the physical device level, GameDay preserves the relative voice-over balance by lifting the announcement channel instead.</div><button class="danger" id="stopAllAudio" style="width:100%;margin-top:8px;min-height:48px">■ STOP ALL AUDIO</button></section>
+    <section class="panel"><div class="now" id="now"><b>Ready.</b> No announcement playing.</div><div class="note" style="margin-top:8px"><b>Automatic mix:</b> GameDay keeps announcements and music on separate mixer channels. On volume-capable Spotify outputs, music ducks by 3 dB during announcements. iPhone/iPad browser playback remains under the physical device-volume buttons because Spotify does not expose software volume for that browser stream.</div><button class="danger" id="stopAllAudio" style="width:100%;margin-top:8px;min-height:48px">■ STOP ALL AUDIO</button></section>
   </div>
 
   <div id="musicPane" class="tabpane"><div class="music-layout"><div>
@@ -38,7 +38,7 @@
     <section class="panel"><h2>Uploaded Music</h2><div id="localTracks" class="tracklist"><div class="tiny">No uploaded tracks in this published game.</div></div></section>
   </div><div>
     <section class="spotify-shell"><div class="spotify-head"><b>Spotify Premium Game-Day Player</b><span id="spotifyStatus">PREMIUM REQUIRED</span></div></section>
-    <div class="note" style="margin-top:8px">GameDay uses Spotify Premium authentication and Spotify's Web Playback SDK to play directly inside supported desktop and mobile browsers. Desktop/Android browser players support a true Spotify volume fader. On iPhone/iPad, Spotify requires the physical device volume for the browser stream, so GameDay converts the music fader into a relative backing-track mix against the independently controlled announcement channel.</div>
+    <div class="note" style="margin-top:8px">GameDay uses Spotify Premium authentication and Spotify's Web Playback SDK. Desktop and Android browser players support a true Spotify volume fader. When the selected iPhone/iPad browser output is hardware-volume locked, GameDay disables the non-functional Spotify fader and offers any available volume-capable Spotify Connect output; selecting one makes the same GameDay slider a real Spotify volume control.</div>
   </div></div></div>
 </section>
 
@@ -56,6 +56,6 @@
 
 <div class="dock"><div class="dock-inner dock-simple"><div class="dock-status"><b id="dockSource">Spotify Premium</b><small id="dockDetail">Music stopped</small></div><button class="stopmusic is-start" id="stopMusic" aria-pressed="false">▶ START MUSIC</button></div></div>
 <div class="toast" id="toast"></div>
-<script type="module" src="./bootstrap.js?v=music-fade-v12"></script>
+<script type="module" src="./bootstrap.js?v=mobile-volume-v13"></script>
 </body>
 </html>

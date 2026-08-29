@@ -14,8 +14,6 @@ function isIOSWebBrowser(){
 }
 const IOS_SPOTIFY_BROWSER_MODE=isIOSWebBrowser();
 window.__gamedayIOSWebPlaybackMode=IOS_SPOTIFY_BROWSER_MODE;
-// Legacy compatibility flag. Apple browsers now use the real Web Playback SDK first;
-// Spotify Connect is only a fallback when the SDK itself cannot initialize.
 window.__gamedayAppleSpotifyConnectMode=false;
 
 function saveSpotifyStatus(status){
@@ -50,7 +48,6 @@ async function handleServerSpotifyCallback(){
   const state=params.get('state');
   const error=params.get('error');
   if(!code&&!error)return false;
-
   if(error){
     saveSpotifyStatus({ok:false,error,detail:friendlySpotifyError(error)});
     location.replace(APP_HOME);
@@ -61,13 +58,8 @@ async function handleServerSpotifyCallback(){
     location.replace(APP_HOME);
     return true;
   }
-
   try{
-    const r=await fetch(SPOTIFY_AUTH_ENDPOINT,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({action:'exchange',code,state})
-    });
+    const r=await fetch(SPOTIFY_AUTH_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'exchange',code,state})});
     let body={};
     try{body=await r.json();}catch(_e){}
     const returnUrl=body.return_url||APP_HOME;
@@ -78,13 +70,7 @@ async function handleServerSpotifyCallback(){
       location.replace(returnUrl);
       return true;
     }
-    const token={
-      access_token:body.token.access_token,
-      refresh_token:body.token.refresh_token||'',
-      expires_at:Date.now()+Math.max(60,Number(body.token.expires_in||3600))*1000,
-      client_id:body.token.client_id||'',
-      scope:body.token.scope||''
-    };
+    const token={access_token:body.token.access_token,refresh_token:body.token.refresh_token||'',expires_at:Date.now()+Math.max(60,Number(body.token.expires_in||3600))*1000,client_id:body.token.client_id||'',scope:body.token.scope||''};
     localStorage.setItem(SPOTIFY_TOKEN_KEY,JSON.stringify(token));
     localStorage.setItem(SPOTIFY_PROFILE_KEY,JSON.stringify(body.profile||{}));
     saveSpotifyStatus({ok:true,detail:'Spotify Premium authorized successfully.'});
@@ -106,11 +92,7 @@ async function startServerSpotifyAuth(){
   try{
     const params=new URLSearchParams(location.search);
     const slug=params.get('game')||'';
-    const r=await fetch(SPOTIFY_AUTH_ENDPOINT,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({action:'start',slug,return_url:cleanCurrentUrl()})
-    });
+    const r=await fetch(SPOTIFY_AUTH_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'start',slug,return_url:cleanCurrentUrl()})});
     let body={};
     try{body=await r.json();}catch(_e){}
     if(!r.ok||!body.auth_url)throw new Error(body.detail||body.error||'Unable to start Spotify login');
@@ -133,10 +115,9 @@ function disconnectSpotifySession(){
 
 const callbackHandled=await handleServerSpotifyCallback();
 if(!callbackHandled){
-  for(const src of ['./core-v3.js?v=ios-browser-audio-v10','./spotify-playback-v4.js?v=ios-browser-audio-v10','./spotify-browser-player-v6.js?v=ios-browser-audio-v10','./app-part4.js?v=ios-browser-audio-v10','./app-part3.js?v=ios-browser-audio-v10']){
+  for(const src of ['./core-v3.js?v=gameday-mixer-v11','./spotify-playback-v4.js?v=gameday-mixer-v11','./spotify-browser-player-v6.js?v=gameday-mixer-v11','./gameday-mixer-v1.js?v=gameday-mixer-v11','./app-part4.js?v=gameday-mixer-v11','./app-part3.js?v=gameday-mixer-v11']){
     await new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=()=>reject(new Error('Failed to load '+src));document.body.appendChild(s);});
   }
-
   const params=new URLSearchParams(location.search);
   const isOperatorRoot=!params.get('admin')&&!params.get('game');
   if(isOperatorRoot&&typeof window.loadPublishedGame==='function')await window.loadPublishedGame('');
@@ -167,7 +148,8 @@ if(!callbackHandled){
       status.textContent='Spotify authorization is missing required Premium playback permissions.';
     }else if(authorized&&state.spotifySdkReady){
       button.textContent='DISCONNECT SPOTIFY';
-      status.textContent=IOS_SPOTIFY_BROWSER_MODE?'Spotify Premium connected • iOS GameDay Browser Player ready.':'Spotify Premium connected • GameDay Browser Player ready in this tab.';
+      const mix=window.__gamedayMixerV1?.state?.();
+      status.textContent=IOS_SPOTIFY_BROWSER_MODE&&mix?.iosVolumeMode==='relative'?'Spotify Premium connected • iOS browser audio ready • device buttons set Spotify loudness; GameDay faders set the relative announcement mix.':IOS_SPOTIFY_BROWSER_MODE?'Spotify Premium connected • iOS GameDay Browser Player ready.':'Spotify Premium connected • GameDay Browser Player ready in this tab.';
     }else if(authorized){
       button.textContent='DISCONNECT SPOTIFY';
       status.textContent=IOS_SPOTIFY_BROWSER_MODE?'Spotify Premium authorized • preparing iOS browser audio player…':'Spotify Premium authorized • starting the GameDay Browser Player…';

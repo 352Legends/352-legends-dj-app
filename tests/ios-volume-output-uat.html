@@ -1,0 +1,44 @@
+<!doctype html>
+<html><body data-uat="PENDING">
+<div class="mixer-control"><span><b>Music</b></span><input id="musicVolume" type="range" value="50"></div>
+<label class="gdsp-volume"><span><b>Spotify Volume</b></span><input id="gdspVolume" type="range" value="50"></label>
+<select id="gdspDeviceSelect"></select>
+<div id="results"></div>
+<script>
+window.__gamedayIOSWebPlaybackMode=true;
+var spotifyDevices=[
+  {id:'sdk1',name:'GameDay Browser Player',supports_volume:false,is_active:true},
+  {id:'speaker1',name:'Field Speaker',supports_volume:true,is_active:false}
+];
+var spotifySelectedDeviceId='sdk1';
+var spotifySdkDeviceId='sdk1';
+var spotifyPlaying=true;
+var musicVolume=.5;
+var transferred='';
+var volumeTarget='';
+window.__gamedayMixerV1={state:()=>({ios:true,iosVolumeMode:'relative'})};
+async function transferSpotifyPlayback(d){transferred=d.id;spotifySelectedDeviceId=d.id;spotifyDevices.forEach(x=>x.is_active=x.id===d.id);}
+async function setSpotifyVolume(level,d){volumeTarget=d.id;return true;}
+function refreshSpotifyPlayback(){}
+function setMixerStatus(){}
+function msg(){}
+</script>
+<script src="../ios-volume-output-v1.js"></script>
+<script>
+const checks=[];
+function check(name,ok){checks.push([name,!!ok]);}
+setTimeout(async()=>{
+  check('iOS browser Spotify fader disables when volume is hardware-locked',document.getElementById('musicVolume').disabled===true);
+  const b=document.querySelector('.ios-use-volume-device');
+  check('iOS offers a volume-capable Spotify Connect output',!!b&&/Field Speaker/.test(b.textContent));
+  b?.click();
+  setTimeout(()=>{
+    check('iOS output switch transfers playback to controllable device',transferred==='speaker1');
+    check('iOS output switch applies current Spotify mixer level',volumeTarget==='speaker1');
+    check('Spotify fader re-enables on controllable output',document.getElementById('musicVolume').disabled===false);
+    document.getElementById('results').innerHTML=checks.map(([n,o])=>'<div>'+(o?'PASS':'FAIL')+' '+n+'</div>').join('');
+    document.body.dataset.uat=checks.every(x=>x[1])?'PASS':'FAIL';
+  },180);
+},350);
+</script>
+</body></html>

@@ -138,7 +138,7 @@
     }catch(e){
       const m=String(e?.message||e||'Unable to start Spotify');
       if(PATTERN_ERROR.test(m)){
-        setStatus('Safari blocked the first Spotify request. GameDay retried with the compatibility transport; tap START MUSIC once more if no device is active.');
+        setStatus('Safari blocked the Spotify request even after compatibility retry. Open Spotify once so a device is active, then tap START MUSIC again.');
         toast('Spotify browser compatibility retry needed');
       }else{setStatus(m);toast(m);}
     }finally{busy=false;if(b){b.disabled=false;b.textContent=old||'▶ START MUSIC';}}
@@ -155,7 +155,7 @@
 
   function wire(){
     const start=$('soundboardStartMusic');if(start)start.onclick=startRandom;
-    const nextTop=$('nextTrackBtn');if(nextTop)nextTop.onclick=()=>spotifySelected()?next():window.nextLocal?.();
+    const nextTop=$('nextTrackBtn');if(nextTop&&!nextTop.dataset.spotifyCompat){const original=nextTop.onclick;nextTop.dataset.spotifyCompat='1';nextTop.onclick=e=>spotifySelected()?next():original?.call(nextTop,e);}
     const gdNext=$('gdspNext');if(gdNext)gdNext.onclick=next;
     const gdPrev=$('gdspPrev');if(gdPrev)gdPrev.onclick=previous;
     const master=$('stopMusic');if(master&&!master.dataset.spotifyCompat){const original=master.onclick;master.dataset.spotifyCompat='1';master.onclick=e=>{if(spotifySelected()&&master.textContent.includes('START MUSIC'))return startRandom();return original?.call(master,e);};}

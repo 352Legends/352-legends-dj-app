@@ -16,13 +16,16 @@ jobs:
           node --check spotify-playback-v4.js
           node --check spotify-browser-player-v6.js
           node --check gameday-mixer-v1.js
+          node --check music-stop-fade-v1.js
           node --check app-part3.js
           node --check app-part4.js
           node --check bootstrap.js
-          ! grep -R "open.spotify.com/embed\|iframe-api/v1" core-v3.js spotify-playback-v4.js spotify-browser-player-v6.js gameday-mixer-v1.js index.html bootstrap.js
+          ! grep -R "open.spotify.com/embed\|iframe-api/v1" core-v3.js spotify-playback-v4.js spotify-browser-player-v6.js gameday-mixer-v1.js music-stop-fade-v1.js index.html bootstrap.js
           ! grep -E "sprint[0-9]|core-v2" bootstrap.js
           ! grep -q "installAppleSdkBlocker" bootstrap.js
           grep -q "gameday-mixer-v1.js" bootstrap.js
+          grep -q "music-stop-fade-v1.js" bootstrap.js
+          grep -q "FADE_MS = 2000" music-stop-fade-v1.js
           grep -q "streaming user-read-playback-state" core-v3.js
           grep -q "loadPublishedGame('')" bootstrap.js
           grep -q "spotify-auth" bootstrap.js
@@ -65,6 +68,17 @@ jobs:
           grep -q 'Spotify fader sets browser-player volume' /tmp/mixer-uat.html
           grep -q 'announcement ducks Spotify by 3 dB' /tmp/mixer-uat.html
           grep -q 'Spotify volume restores to user mix' /tmp/mixer-uat.html
+      - name: Master Stop Music fade UAT
+        shell: bash
+        run: |
+          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          timeout 40s "$CHROME" --headless=new --no-sandbox --disable-gpu --virtual-time-budget=7000 --dump-dom "http://127.0.0.1:8080/tests/music-stop-fade-uat.html" >/tmp/music-fade-uat.html
+          cat /tmp/music-fade-uat.html
+          grep -q 'data-uat="PASS"' /tmp/music-fade-uat.html
+          grep -q 'Spotify Stop Music fades for about 2 seconds' /tmp/music-fade-uat.html
+          grep -q 'Spotify fade reaches zero before pause' /tmp/music-fade-uat.html
+          grep -q 'Uploaded music Stop Music also fades for about 2 seconds' /tmp/music-fade-uat.html
+          grep -q 'LIVE/STOP ALL immediate stop function remains unmodified' /tmp/music-fade-uat.html
       - name: iOS browser audio UAT
         shell: bash
         run: |

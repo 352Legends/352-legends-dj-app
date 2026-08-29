@@ -14,22 +14,24 @@ jobs:
         run: |
           node --check core-v3.js
           node --check spotify-playback-v4.js
+          node --check spotify-browser-player-v5.js
           node --check app-part3.js
           node --check app-part4.js
           node --check bootstrap.js
-          ! grep -R "open.spotify.com/embed\|iframe-api/v1" core-v3.js spotify-playback-v4.js index.html bootstrap.js
+          ! grep -R "open.spotify.com/embed\|iframe-api/v1" core-v3.js spotify-playback-v4.js spotify-browser-player-v5.js index.html bootstrap.js
           ! grep -E "sprint[0-9]|core-v2" bootstrap.js
           grep -q "streaming user-read-playback-state" core-v3.js
           grep -q "loadPublishedGame('')" bootstrap.js
           grep -q "spotify-auth" bootstrap.js
           grep -q "spotify-playback-v4.js" bootstrap.js
+          grep -q "spotify-browser-player-v5.js" bootstrap.js
           grep -q "handleServerSpotifyCallback" bootstrap.js
           grep -q "startServerSpotifyAuth" bootstrap.js
           grep -q "SPOTIFY_ACCOUNT_NOT_ALLOWED" bootstrap.js
-          grep -q "Spotify Premium connected" bootstrap.js
-          grep -q "PATTERN_ERROR" spotify-playback-v4.js
-          grep -q "xhrRequest" spotify-playback-v4.js
-          grep -q "\[A-Za-z0-9\]{22}" spotify-playback-v4.js
+          grep -q "GameDay Browser Player ready in this tab" bootstrap.js
+          grep -q "device_ids: \[deviceId\]" spotify-browser-player-v5.js
+          grep -q "me/player/play?device_id=" spotify-browser-player-v5.js
+          grep -q "activateElement" spotify-browser-player-v5.js
           grep -q "assetReferenceCount" app-part3.js
           grep -q "25\*1024\*1024" app-part3.js
       - name: Start local static site
@@ -42,10 +44,11 @@ jobs:
         run: |
           CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
           test -n "$CHROME"
-          timeout 40s "$CHROME" --headless=new --no-sandbox --disable-gpu --virtual-time-budget=9000 --dump-dom "http://127.0.0.1:8080/tests/operator-uat.html?game=uat" >/tmp/uat-dom.html
+          timeout 40s "$CHROME" --headless=new --no-sandbox --disable-gpu --virtual-time-budget=10000 --dump-dom "http://127.0.0.1:8080/tests/operator-uat.html?game=uat" >/tmp/uat-dom.html
           cat /tmp/uat-dom.html
           grep -q 'data-uat="PASS"' /tmp/uat-dom.html
-          grep -q 'Safari pattern error retries through XHR' /tmp/uat-dom.html
+          grep -q 'Start Playback targets exact browser SDK device' /tmp/uat-dom.html
+          grep -q 'active phone is overridden by GameDay Browser Player' /tmp/uat-dom.html
       - name: Root Home published-game regression
         shell: bash
         run: |

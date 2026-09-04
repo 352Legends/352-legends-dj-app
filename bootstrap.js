@@ -1,6 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.112.4';
 window.__createClient=createClient;
 
+// mobile-first-v23 remains the base mobile UX lineage; current-update-v25 includes viewport-fit-v24 containment.
 const mobileContainment=document.createElement('link');
 mobileContainment.rel='stylesheet';
 mobileContainment.href='./mobile-containment-v1.css?v=current-update-v25';

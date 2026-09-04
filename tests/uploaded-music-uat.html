@@ -1,0 +1,36 @@
+<!doctype html><html><head><meta charset="utf-8"></head><body data-uat="RUNNING">
+<section class="panel"><h2>Uploaded Music</h2><div class="sub"></div><div id="localTracks"></div></section>
+<section><div class="field"><label>Music file</label><input id="musicFile" type="file" accept="audio/*"></div><button id="uploadMusic">Upload Music</button><div id="musicAssets"></div><div id="soundAssets"></div><div id="soundEditor"></div></section>
+<div id="toast"></div><pre id="results"></pre>
+<script>
+window.__errors=[];addEventListener('error',e=>__errors.push(String(e.message||e.error)));
+let gameState='BREAK',musicSource='LOCAL',musicVolume=.8,musicIndex=0,musicAudio=null,localPlaying=false,announcementActive=false;const DUCK_FACTOR=Math.pow(10,-3/20);
+let currentGame={musicTracks:[{id:'t1',name:'Opener.mp3',src:'https://example.test/1.mp3'},{id:'t2',name:'Defense.mp3',src:'https://example.test/2.mp3'},{id:'t3',name:'Victory.mp3',src:'https://example.test/3.mp3'}]};
+let assets=[],selectedMusicIds=[],saveCount=0,insertCount=0,uploadCount=0;
+const $=id=>document.getElementById(id);const clamp01=v=>Math.max(0,Math.min(1,Number(v)||0));function msg(t){document.getElementById('toast').textContent=t}function localTracks(){return currentGame.musicTracks||[]}function routeMedia(){return false}function applyLocalVolume(){if(musicAudio)musicAudio.volume=musicVolume*(announcementActive?DUCK_FACTOR:1)}function ensureAudioGraph(){}function renderMusicState(){}function setMusicSource(s){musicSource=s}function renderLocalTracks(){}function ensureLocalAudio(){}function playLocal(){}function pauseLocal(){}function nextLocal(){}
+class FakeAudio{constructor(){this.currentTime=0;this.duration=200;this.volume=1;this.paused=true;this.datasetSrc='';this.dataset={};}play(){this.paused=false;return Promise.resolve()}pause(){this.paused=true;}set src(v){this._src=v}get src(){return this._src}}
+window.Audio=FakeAudio;
+function musicAssets(){return assets.filter(a=>a.kind==='music')}function renderAdminAssets(){document.getElementById('musicAssets').innerHTML='<div>base</div>'}function renderSoundEditor(){}function previewAsset(){}function deleteAsset(){}async function savePreferences(){saveCount++}
+const supabase={
+ auth:{getUser:async()=>({data:{user:{id:'user-1'}}})},
+ storage:{from:()=>({upload:async()=>{uploadCount++;return{error:null}},remove:async()=>({error:null})})},
+ from:(table)=>({insert:(payload)=>({select:()=>({single:async()=>({data:{id:'asset-'+(++insertCount),name:payload.name,kind:'music',storage_path:payload.storage_path,created_at:new Date().toISOString()},error:null})})})})
+};
+</script>
+<script src="../uploaded-music-v1.js"></script>
+<script>
+(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms)),out=[],ok=(n,v,d='')=>out.push({name:n,pass:!!v,detail:d});await sleep(80);
+ok('bulk music input accepts multiple files',document.getElementById('musicFile').multiple===true,String(document.getElementById('musicFile').multiple));
+ok('admin upload button advertises bulk upload',document.getElementById('uploadMusic').textContent.includes('Files'),document.getElementById('uploadMusic').textContent);
+ok('uploaded music player renders full track library',document.querySelectorAll('[data-play-track]').length===3,String(document.querySelectorAll('[data-play-track]').length));
+ok('player exposes previous/play/next controls',!!document.querySelector('[data-local-prev]')&&!!document.querySelector('[data-local-toggle]')&&!!document.querySelector('[data-local-next]'),document.getElementById('localTracks').textContent);
+window.__gamedayUploadedMusicV1.playTrack(1);await sleep(20);ok('operator can select an exact uploaded track',window.__gamedayUploadedMusicV1.state().musicIndex===1&&window.__gamedayUploadedMusicV1.state().localPlaying,JSON.stringify(window.__gamedayUploadedMusicV1.state()));
+window.__gamedayUploadedMusicV1.next();await sleep(20);ok('operator next control advances queue',window.__gamedayUploadedMusicV1.state().musicIndex===2,JSON.stringify(window.__gamedayUploadedMusicV1.state()));
+window.__gamedayUploadedMusicV1.previous();await sleep(20);ok('operator previous control moves backward',window.__gamedayUploadedMusicV1.state().musicIndex===1,JSON.stringify(window.__gamedayUploadedMusicV1.state()));
+const seek=document.querySelector('[data-local-seek]');musicAudio.duration=200;seek.value='500';seek.dispatchEvent(new Event('input',{bubbles:true}));ok('operator can seek within uploaded track',Math.abs(musicAudio.currentTime-100)<1,String(musicAudio.currentTime));
+document.querySelector('[data-local-shuffle]').click();document.querySelector('[data-local-repeat]').click();ok('shuffle and repeat controls are stateful',window.__gamedayUploadedMusicV1.state().shuffle===true&&window.__gamedayUploadedMusicV1.state().repeat==='one',JSON.stringify(window.__gamedayUploadedMusicV1.state()));
+pauseLocal(false);gameState='LIVE';window.__gamedayUploadedMusicV1.playTrack(0);await sleep(20);ok('LIVE PLAY blocks uploaded music start',window.__gamedayUploadedMusicV1.state().localPlaying===false,JSON.stringify(window.__gamedayUploadedMusicV1.state()));gameState='BREAK';
+const files=[{name:'Batch One.mp3',size:1000,type:'audio/mpeg'},{name:'Batch Two.mp3',size:2000,type:'audio/mpeg'}];const r=await window.__gamedayUploadedMusicV1.bulkUploadFiles(files);ok('bulk upload accepts multiple audio tracks in one action',r.uploaded===2&&r.failed===0&&uploadCount===2,JSON.stringify({r,uploadCount}));ok('bulk uploaded tracks join the publish selection',selectedMusicIds.length===2,JSON.stringify(selectedMusicIds));ok('admin library shows published track order',document.getElementById('musicAssets').textContent.includes('TRACK 1')&&document.getElementById('musicAssets').textContent.includes('TRACK 2'),document.getElementById('musicAssets').textContent);
+const down=document.querySelector('[data-music-down]');const before=selectedMusicIds.join(',');down?.click();await sleep(10);ok('admin can reorder published uploaded tracks',selectedMusicIds.join(',')!==before,JSON.stringify(selectedMusicIds));ok('preferences persist bulk selection/order',saveCount>0,String(saveCount));ok('no page errors',__errors.length===0,JSON.stringify(__errors));
+document.getElementById('results').textContent=JSON.stringify(out,null,2);document.body.dataset.uat=out.every(x=>x.pass)?'PASS':'FAIL';})();
+</script></body></html>

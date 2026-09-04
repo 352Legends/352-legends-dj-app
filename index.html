@@ -35,7 +35,7 @@
   <div id="musicPane" class="tabpane">
     <div class="music-layout" style="grid-template-columns:1fr">
       <div>
-        <section class="panel"><h2>Uploaded Music</h2><div class="sub">GameDay uses the published uploaded music library for all game-day music.</div><div class="music-actions"><button class="bigctl" id="musicPlayBtn">▶ PLAY MUSIC</button><button class="secondaryctl" id="nextTrackBtn">NEXT TRACK ›</button></div></section>
+        <section class="panel"><h2>Uploaded Music</h2><div class="sub">The large bottom START MUSIC button always chooses a fresh random uploaded track and starts it from the beginning. STOP MUSIC fades it out over 3 seconds.</div><div class="music-actions"><button class="bigctl" id="musicPlayBtn">▶ PLAY MUSIC</button><button class="secondaryctl" id="nextTrackBtn">NEXT TRACK ›</button></div></section>
         <section class="panel"><h2>Uploaded Music Player & Library</h2><div class="sub">Choose any published track, seek, shuffle, repeat, or move through the queue.</div><div id="localTracks" class="tracklist"><div class="tiny">No uploaded tracks in this published game.</div></div></section>
       </div>
     </div>
@@ -54,8 +54,8 @@
 <div class="footer tiny" style="text-align:center;padding-top:13px">GameDay • Youth Football Game Operations</div>
 </div>
 
-<div class="dock"><div class="dock-inner dock-simple"><div class="dock-status"><b id="dockSource">Uploaded Music</b><small id="dockDetail">Music stopped</small></div><button class="stopmusic is-start" id="stopMusic" aria-pressed="false">▶ START MUSIC</button></div></div>
+<div class="dock"><div class="dock-inner dock-simple"><div class="dock-status"><b id="dockSource">Uploaded Music</b><small id="dockDetail">START selects a fresh random track</small></div><button class="stopmusic is-start" id="stopMusic" aria-pressed="false">▶ START MUSIC</button></div></div>
 <div class="toast" id="toast"></div>
-<script type="module" src="./bootstrap.js?v=uploaded-only-v18"></script>
+<script type="module" src="./bootstrap.js?v=random-music-v19"></script>
 </body>
 </html>

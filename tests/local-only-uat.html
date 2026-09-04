@@ -1,0 +1,35 @@
+<!doctype html><html><body data-uat="RUNNING">
+<div class="spotify-connect-row">legacy connect</div><div class="spotify-shell">legacy player</div><div class="soundboard-music-launch">legacy start</div>
+<div id="dockSource"></div><button id="localSourceBtn"></button><div id="musicVolume" class="mixer-control"></div>
+<pre id="out"></pre>
+<script>
+let musicSource='SPOTIFY',musicVolume=.72,gameState='BREAK',localPlaying=false,playCalls=0,renderCalls=0,loadCalls=0;
+let currentGame={defaultMusicSource:'SPOTIFY',spotifyUrl:'https://example.test/playlist',spotifyClientId:'legacy-client',musicTracks:[{name:'Track 1'}]};
+let spotifyPlayer={disconnect(){window.disconnected=true}},spotifySdkReady=true,spotifySdkDeviceId='sdk1',spotifySelectedDeviceId='sdk1',spotifyPlayback={item:{}},spotifyPlaying=true;
+function localTracks(){return currentGame.musicTracks||[]}
+function playLocal(){playCalls++;localPlaying=true}
+function renderLocalTracks(){}
+function renderMusicState(){renderCalls++;document.getElementById('dockSource').textContent=musicSource==='LOCAL'?'Uploaded Music':'Legacy'}
+function setMusicSource(source){musicSource=source}
+function musicIsPlaying(){return musicSource==='LOCAL'?localPlaying:spotifyPlaying}
+function startMasterMusic(){return null}
+function setMixerStatus(){}
+function msg(){}
+async function loadPublishedGame(){loadCalls++;currentGame={defaultMusicSource:'SPOTIFY',spotifyUrl:'legacy',spotifyClientId:'legacy',musicTracks:[{name:'A'},{name:'B'}]};musicSource='SPOTIFY';renderMusicState();}
+</script>
+<script src="../local-only-v1.js"></script>
+<script>
+const results=[];function ok(name,cond){results.push([name,!!cond])}
+setTimeout(async()=>{
+  ok('legacy Spotify surfaces are removed',document.querySelectorAll('.spotify-connect-row,.spotify-shell,.soundboard-music-launch').length===0);
+  ok('initial Spotify source is forced to Uploaded Music',musicSource==='LOCAL');
+  ok('legacy Spotify player is disconnected',window.disconnected===true&&spotifyPlayer===null);
+  setMusicSource('SPOTIFY');ok('source switch cannot reactivate Spotify',musicSource==='LOCAL');
+  localPlaying=false;startMasterMusic();ok('master start uses uploaded music',playCalls===1&&localPlaying===true);
+  await loadPublishedGame('legacy');
+  ok('old published Spotify default is converted to LOCAL',currentGame.defaultMusicSource==='LOCAL'&&musicSource==='LOCAL');
+  ok('legacy published Spotify metadata is nulled',currentGame.spotifyUrl===null&&currentGame.spotifyClientId===null);
+  ok('uploaded track library remains available',localTracks().length===2);
+  const pass=results.every(x=>x[1]);document.body.dataset.uat=pass?'PASS':'FAIL';document.getElementById('out').textContent=results.map(x=>(x[1]?'PASS ':'FAIL ')+x[0]).join('\n');
+},120);
+</script></body></html>

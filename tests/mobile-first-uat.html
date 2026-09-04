@@ -1,16 +1,16 @@
-<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="stylesheet" href="../app.css"><link rel="stylesheet" href="../sprint4.css"><link rel="stylesheet" href="../mobile-first-v1.css"></head><body data-uat="RUNNING">
+<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="stylesheet" href="../app.css"><link rel="stylesheet" href="../sprint4.css"><link rel="stylesheet" href="../mobile-first-v1.css"><link rel="stylesheet" href="../mobile-containment-v1.css"></head><body data-uat="RUNNING">
 <div class="app">
-<header class="top"><div class="brand"><div class="logo">🏈</div><div><h1>GameDay</h1><p>Volunteer Audio Console</p></div></div></header>
+<header class="top"><div class="brand"><div class="logo">🏈</div><div><h1>GameDay With A Very Long Mobile Game Title That Must Shrink</h1><p>Volunteer Audio Console With Long Supporting Copy</p></div></div></header>
 <div class="mode-nav"><a class="on">Game Day</a><a>Admin Studio</a></div>
 <section class="operator">
 <div class="state-scroll"><div class="statebar live-only"><button class="live">LIVE PLAY</button></div></div>
 <section class="mixer-strip"><div class="mixer-head"><b>Game-Day Audio Mixer</b><span>Always available</span></div><div class="mixer-grid"><label class="mixer-control"><span><b>Announcements & Effects</b><em>95%</em></span><input type="range"></label><label class="mixer-control"><span><b>Music</b><em>78%</em></span><input type="range"></label></div></section>
 <div class="game-tabs"><button class="tabbtn on">Soundboard</button><button class="tabbtn">Music</button></div>
-<div id="soundPane"><section class="panel"><div id="gdGroupedSoundboard"><div class="gd-group-order-bar"><div><b>Soundboard Groups</b><small>Arrange</small></div><button>Reorder</button></div><div class="gd-group-nav"><button class="gd-group-chip">ALL</button><button class="gd-group-chip">Downs</button><button class="gd-group-chip">Scoring Plays</button></div><div class="gd-group-stack"><section class="gd-group-section"><div class="gd-group-heading"><b>Downs</b></div><div class="gd-group-grid"><button class="sound announcement"><small>DOWN</small><strong>First Down</strong></button><button class="sound announcement"><small>DOWN</small><strong>Third Down</strong></button></div></section></div></div></section><section class="panel"><div class="now">Ready</div><div class="note">Automatic mix information</div><button class="danger" id="stopAllAudio">STOP ALL AUDIO</button></section></div>
+<div id="soundPane"><section class="panel"><div id="gdGroupedSoundboard"><div class="gd-group-order-bar"><div><b>Soundboard Groups With Long Text</b><small>Arrange</small></div><button>Reorder</button></div><div class="gd-group-nav"><button class="gd-group-chip">ALL</button><button class="gd-group-chip">Downs</button><button class="gd-group-chip">Scoring Plays</button><button class="gd-group-chip">Extremely Long Custom Sponsor Announcement Group Name That Must Stay Contained</button></div><div class="gd-group-stack"><section class="gd-group-section"><div class="gd-group-heading"><b>Extremely Long Custom Sponsor Announcement Group Name That Must Stay Contained</b></div><div class="gd-group-grid"><button class="sound announcement"><small>DOWN</small><strong>Very Long First Down Announcement Label That Must Wrap</strong></button><button class="sound announcement"><small>DOWN</small><strong>Third Down</strong></button></div></section></div></div></section><section class="panel"><div class="now">Ready</div><div class="note">Automatic mix information</div><button class="danger" id="stopAllAudio">STOP ALL AUDIO</button></section></div>
 </section>
-<section class="admin on"><div class="admin-tabs"><button class="tabbtn on">Soundboard</button><button class="tabbtn">Music</button><button class="tabbtn">Publish</button></div><div class="admin-grid"><section class="panel"><div class="field"><label>Name</label><input id="mobileInput"></div><div class="assetrow"><div><b>Upload</b></div><div class="row"><button class="mini">Preview</button><button class="danger">Delete</button></div></div></section><section class="panel"><div class="row spread"><div><h2>Editor</h2></div><button class="primary">Add</button></div></section></div></section>
+<section class="admin on"><div class="admin-tabs"><button class="tabbtn on">Soundboard</button><button class="tabbtn">Music</button><button class="tabbtn">Publish</button></div><div class="admin-grid"><section class="panel"><div class="field"><label>Name</label><input id="mobileInput"></div><div class="assetrow"><div><b>Extremely-Long-Uploaded-Announcement-Filename-That-Must-Never-Widen-The-Mobile-Viewport.mp3</b></div><div class="row"><button class="mini">Preview</button><button class="danger">Delete</button></div></div></section><section class="panel"><div class="row spread"><div><h2>Editor</h2></div><button class="primary">Add</button></div><section class="gd-admin-sound-group"><header><div><h3>Very Long Administrator Custom Group Name That Needs To Wrap Safely</h3></div><div class="gd-admin-group-actions"><button class="mini">Drag Group</button><button class="mini">Collapse</button><button class="mini">Move Up</button><button class="mini">Move Down</button></div></header><div class="gd-admin-group-items"><div class="editor-card gd-admin-sound-item"><div class="gd-admin-item-order"><span>ANNOUNCEMENT 1 OF 1 WITH EXTRA COPY</span><div><button class="mini">Drag</button><button class="mini">Up</button><button class="mini">Down</button></div></div><div class="editor-top"><input value="Extremely long announcement title"><input value="Very long eyebrow"><input value="Very Long Custom Group Name"><select><option>Announcement</option></select></div></div></div></section></section></div></section>
 </div>
-<div class="dock"><div class="dock-inner dock-simple"><div class="dock-status"><b>Uploaded Music</b><small>START selects random track</small></div><button class="stopmusic">START MUSIC</button></div></div>
+<div class="dock"><div class="dock-inner dock-simple"><div class="dock-status"><b>Uploaded Music With A Very Long Track Name That Must Shrink</b><small>START selects a fresh random uploaded track from the entire published library</small></div><button class="stopmusic">START MUSIC</button></div></div>
 <pre id="out"></pre>
 <script>
 const results=[];const ok=(name,cond,detail='')=>results.push({name,pass:!!cond,detail});const px=v=>parseFloat(v)||0;
@@ -24,6 +24,9 @@ addEventListener('load',()=>setTimeout(()=>{
  const stop=getComputedStyle(document.querySelector('.stopmusic'));
  const chip=getComputedStyle(document.querySelector('.gd-group-chip'));
  const adminGrid=getComputedStyle(document.querySelector('.admin-grid'));
+ const nav=document.querySelector('.gd-group-nav').getBoundingClientRect();
+ const app=document.querySelector('.app').getBoundingClientRect();
+ const dock=document.querySelector('.dock-inner').getBoundingClientRect();
  ok('mobile viewport is active',innerWidth<=500,String(innerWidth));
  ok('LIVE PLAY uses full-width mobile safety layout',state.minWidth==='0px'&&state.gridTemplateColumns.split(' ').length===1,state.minWidth+' / '+state.gridTemplateColumns);
  ok('mobile mixer stays compact in two columns',mixer.gridTemplateColumns.split(' ').length===2,mixer.gridTemplateColumns);
@@ -34,7 +37,10 @@ addEventListener('load',()=>setTimeout(()=>{
  ok('admin inputs use 16px text to avoid iOS form zoom',px(input.fontSize)>=16,input.fontSize);
  ok('admin layout becomes single column',adminGrid.gridTemplateColumns.split(' ').length===1,adminGrid.gridTemplateColumns);
  ok('master music button has thumb-sized height',px(stop.minHeight)>=60,stop.minHeight);
- ok('mobile page has no accidental horizontal overflow',document.documentElement.scrollWidth<=innerWidth+1,document.documentElement.scrollWidth+' / '+innerWidth);
+ ok('app shell stays inside visual viewport',app.left>=-1&&app.right<=innerWidth+1,app.left+' / '+app.right+' / '+innerWidth);
+ ok('group navigation scroll stays contained',nav.left>=-1&&nav.right<=innerWidth+1,nav.left+' / '+nav.right+' / '+innerWidth);
+ ok('fixed music dock stays contained',dock.left>=-1&&dock.right<=innerWidth+1,dock.left+' / '+dock.right+' / '+innerWidth);
+ ok('stress-length content does not widen mobile page',document.documentElement.scrollWidth<=innerWidth+1,document.documentElement.scrollWidth+' / '+innerWidth);
  const pass=results.every(x=>x.pass);document.body.dataset.uat=pass?'PASS':'FAIL';document.getElementById('out').textContent=JSON.stringify(results,null,2);
 },80));
 </script></body></html>

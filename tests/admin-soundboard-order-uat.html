@@ -1,6 +1,7 @@
 <!doctype html><html><head></head><body data-uat="RUNNING"><div id="soundEditor"></div><pre id="out"></pre>
 <script>
 window.__errors=[];window.addEventListener('error',e=>__errors.push(String(e.message||e.error)));
+localStorage.removeItem('gameday.admin.soundboard.collapsed.v1');
 const soundGroupPresets=['Pre-Game','Downs','Sponsors'];
 const effectIcons=[['','No icon'],['📣','Megaphone']];
 const palette={orange:{},green:{},blue:{},slate:{}};
@@ -25,17 +26,41 @@ const ids=()=>soundboardDraft.map(x=>x.id).join('|');
 const groups=()=>window.__gamedayAdminSoundboardOrderV1.state().groups.join('|');
 setTimeout(()=>{
   ok('admin editor renders soundboard as groups',document.querySelectorAll('[data-admin-group]').length===3,String(document.querySelectorAll('[data-admin-group]').length));
+  ok('each group can be collapsed',!!document.querySelector('[data-admin-group="Downs"] [data-collapse-group]'));
+  document.querySelector('[data-admin-group="Downs"] [data-collapse-group]')?.click();
+  ok('collapse hides announcements in that group',document.querySelector('[data-admin-group="Downs"] .gd-admin-group-items')?.hidden===true,'');
+  ok('collapsed group preference is retained',window.__gamedayAdminSoundboardOrderV1.state().collapsed.includes('Downs'),JSON.stringify(window.__gamedayAdminSoundboardOrderV1.state().collapsed));
+  document.querySelector('[data-admin-group="Downs"] [data-collapse-group]')?.click();
+
   ok('admin can reorder whole soundboard groups',!!document.querySelector('[data-admin-group="Downs"] [data-group-move="up"]'));
   document.querySelector('[data-admin-group="Downs"] [data-group-move="up"]')?.click();
   ok('moving a group moves all of its announcements together',groups()==='Downs|Pre-Game|Sponsors'&&ids()==='down1|down2|pre1|sponsor1',groups()+' / '+ids());
   document.querySelector('[data-item="down2"] [data-item-move="up"]')?.click();
   ok('admin can reorder announcements within a group',ids()==='down2|down1|pre1|sponsor1',ids());
   ok('announcement move does not cross into another group',soundboardDraft.slice(0,2).every(x=>x.group==='Downs')&&soundboardDraft[2].group==='Pre-Game',ids());
-  const first=document.querySelector('[data-admin-group="Downs"] [data-item]');
-  ok('editor visibly reflects announcement order',first?.dataset.item==='down2',first?.dataset.item||'');
+
+  ok('drag handles are available for groups and announcements',document.querySelector('[data-group-drag="Sponsors"]')?.draggable===true&&document.querySelector('[data-item-drag="down2"]')?.draggable===true,'');
+  const sponsorHandle=document.querySelector('[data-group-drag="Sponsors"]');
+  const preSection=document.querySelector('[data-admin-group="Pre-Game"]');
+  sponsorHandle?.dispatchEvent(new Event('dragstart',{bubbles:true}));
+  preSection?.dispatchEvent(new MouseEvent('drop',{bubbles:true,clientY:0}));
+  ok('drag and drop can reorder entire groups',groups()==='Downs|Sponsors|Pre-Game',groups());
+
+  const groupInput=document.querySelector('[data-item="down1"] [data-f="group"]');
+  groupInput.value='Sponsors';groupInput.dispatchEvent(new Event('change',{bubbles:true}));
+  ok('changing group assignment immediately updates draft group',soundboardDraft.find(x=>x.id==='down1')?.group==='Sponsors',JSON.stringify(soundboardDraft));
+  ok('changed announcement automatically joins its new group',!!document.querySelector('[data-admin-group="Sponsors"] [data-item="down1"]')&&!document.querySelector('[data-admin-group="Downs"] [data-item="down1"]'),'');
+
+  const down2Handle=document.querySelector('[data-item-drag="down2"]');
+  const sponsorSection=document.querySelector('[data-admin-group="Sponsors"]');
+  down2Handle?.dispatchEvent(new Event('dragstart',{bubbles:true}));
+  sponsorSection?.dispatchEvent(new MouseEvent('drop',{bubbles:true,clientY:0}));
+  ok('dragging an announcement into a group updates its group assignment',soundboardDraft.find(x=>x.id==='down2')?.group==='Sponsors'&&!!document.querySelector('[data-admin-group="Sponsors"] [data-item="down2"]'),JSON.stringify(soundboardDraft));
+  ok('empty source group disappears after drag reassignment',!document.querySelector('[data-admin-group="Downs"]'),groups());
+
   collectSoundEditor();
-  ok('collect preserves hierarchical draft order for publishing',ids()==='down2|down1|pre1|sponsor1',ids());
+  ok('collect preserves hierarchical draft order for publishing',soundboardDraft.every(x=>x.group==='Sponsors'||x.group==='Pre-Game'),ids());
   ok('no page errors',__errors.length===0,JSON.stringify(__errors));
   document.getElementById('out').textContent=JSON.stringify(results,null,2);document.body.dataset.uat=results.every(x=>x.pass)?'PASS':'FAIL';
-},120);
+},160);
 </script></body></html>

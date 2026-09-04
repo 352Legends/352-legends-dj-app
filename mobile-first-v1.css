@@ -1,0 +1,155 @@
+/* GameDay mobile-first UX layer — v1 */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+@media (max-width:720px){
+  :root{--dock-h:96px}
+  html,body{max-width:100%;overflow-x:hidden}
+  body{overscroll-behavior-y:none;padding-bottom:calc(var(--dock-h) + env(safe-area-inset-bottom))}
+  button,a,input,select,textarea{-webkit-tap-highlight-color:transparent}
+  button,a{touch-action:manipulation}
+  .app{padding:8px max(8px,env(safe-area-inset-right)) 24px max(8px,env(safe-area-inset-left))}
+
+  /* Compact identity + persistent primary navigation */
+  .top{margin-bottom:6px;gap:7px}
+  .logo{width:36px;height:36px;flex:0 0 36px;border-radius:11px;font-size:18px}
+  .brand{gap:8px}
+  .brand h1{font-size:15px}
+  .brand p{font-size:9px;margin-top:1px}
+  .pill{display:none}
+  .mode-nav{position:sticky;top:0;z-index:31;display:grid;grid-template-columns:1fr 1fr;gap:4px;margin:0 -2px 7px;padding:4px;border:1px solid #273548;border-radius:13px;background:rgba(10,14,20,.96);backdrop-filter:blur(16px);overflow:visible}
+  .mode-nav a{display:grid;place-items:center;min-height:44px;padding:0 8px;border-radius:9px;font-size:11px}
+
+  /* LIVE PLAY becomes a true mobile safety control instead of a desktop scroll strip */
+  .state-scroll{overflow:visible;margin:0 0 7px;padding:0}
+  .statebar.live-only{min-width:0!important;grid-template-columns:1fr!important;padding:4px;border-radius:13px}
+  .statebar.live-only button{min-height:50px;padding:8px;font-size:13px;letter-spacing:.02em}
+
+  /* Mixer stays visible without consuming half the screen */
+  .mixer-strip{margin:0 0 7px;padding:8px;border-radius:13px;box-shadow:none}
+  .mixer-head{margin-bottom:6px}
+  .mixer-head b{font-size:10px}
+  .mixer-head span{display:none}
+  .mixer-grid{grid-template-columns:1fr 1fr!important;gap:6px!important}
+  .mixer-control{gap:5px;padding:7px;border-radius:10px;min-width:0}
+  .mixer-control>span{gap:4px}
+  .mixer-control b{font-size:8px;line-height:1.15;white-space:normal}
+  .mixer-control em{font-size:8px;flex:0 0 auto}
+  .mixer-control input[type="range"]{height:28px;margin:0;touch-action:pan-x}
+
+  /* Tabs stay reachable while the operator scrolls long boards */
+  .game-tabs,.admin-tabs{top:53px;z-index:25;margin-bottom:7px;padding:4px;gap:4px;border-radius:13px}
+  .tabbtn{min-height:44px;padding:7px 6px;font-size:11px}
+
+  /* General cards + tap sizing */
+  .panel{padding:10px;border-radius:15px;box-shadow:0 8px 22px #0002}
+  .panel+.panel{margin-top:8px}
+  .panel h2{font-size:13px}
+  .sub{font-size:9px;line-height:1.35;margin-bottom:8px}
+  .primary,.secondary,.danger,.mini,.bigctl,.secondaryctl{min-height:44px}
+  .primary,.secondary,.danger{padding:10px 11px}
+  .mini{padding:8px 9px;font-size:10px}
+
+  /* Soundboard: scan fast, tap confidently */
+  .gd-soundboard-workspace{grid-template-columns:1fr!important;gap:8px!important;margin-bottom:8px!important}
+  #gameSub{margin-bottom:6px}
+  .gd-group-order-bar{margin:2px 0 6px!important;padding:8px!important}
+  .gd-group-order-bar small{display:none}
+  .gd-group-order-bar button{min-height:44px!important}
+  .gd-group-nav{top:105px!important;margin:0 -10px 6px!important;padding:5px 10px 8px!important;scroll-padding-inline:10px;background:linear-gradient(180deg,rgba(18,24,35,.98) 75%,rgba(18,24,35,0))!important}
+  .gd-group-chip{min-height:40px;padding:7px 11px!important;font-size:10px!important}
+  .gd-group-stack{gap:9px!important}
+  .gd-group-section{padding-top:8px!important}
+  .gd-group-heading{margin-bottom:6px!important}
+  .gd-group-heading b{font-size:13px!important}
+  .gd-group-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}
+  .sound{min-height:92px!important;padding:10px!important;border-radius:13px}
+  .sound small{font-size:8px}
+  .sound strong{font-size:14px!important;line-height:1.13;margin-top:6px}
+  .sound.effect{gap:7px!important}
+  .sound.effect .sound-icon{width:32px!important;height:32px!important;font-size:18px!important}
+  #soundPane>.panel:last-child .note{display:none}
+  #stopAllAudio{min-height:56px!important;font-size:12px;letter-spacing:.02em}
+  .now{font-size:10px;padding:9px}
+
+  /* Soundboard-side music stays useful but does not dominate the announcement workflow */
+  #soundboardUploadedMusic{padding:10px}
+  .gd-sb-music-head .sub{display:none}
+  .gd-sb-now{padding:9px!important;border-radius:12px!important;gap:6px!important}
+  .gd-sb-now strong{font-size:14px!important}
+  .gd-sb-controls button,.gd-sb-modes button{min-height:46px!important}
+  .gd-sb-tracklist{max-height:250px!important}
+  .gd-sb-track{padding:7px!important}
+  .gd-sb-track button{min-height:42px}
+  .gd-sb-library-head input{min-height:44px;font-size:16px}
+
+  /* Full Music tab */
+  .music-actions{gap:6px}
+  .bigctl,.secondaryctl{min-height:54px;font-size:11px}
+  .um-now{padding:10px!important;border-radius:13px!important}
+  .um-now-title{font-size:16px!important}
+  .um-controls button,.um-modes button{min-height:48px!important}
+  .um-trackrow{min-height:56px;padding:8px!important}
+  .um-trackrow button{min-height:42px}
+  .um-library-head input{min-height:46px;font-size:16px}
+
+  /* Admin Studio: phone-first forms and actions */
+  .admin-grid{grid-template-columns:1fr!important;gap:8px}
+  #studio>.row.spread{align-items:center}
+  .admin .panel>.row.spread{align-items:stretch;flex-direction:column}
+  .admin .panel>.row.spread>.primary{width:100%}
+  .field{margin:7px 0;gap:4px}
+  .field label{font-size:10px}
+  .field input,.field select,.field textarea,.editor-top input,.editor-top select,.editor-mid select,.editor-mid textarea{font-size:16px!important;min-height:48px;padding:10px!important;border-radius:10px}
+  .field textarea,.editor-mid textarea{min-height:92px}
+  input[type="file"]{min-height:48px}
+  .assetrow{grid-template-columns:1fr!important;gap:7px;padding:9px}
+  .assetrow>.row{display:grid;grid-template-columns:1fr 1fr;width:100%}
+  .assetrow>.row>*{width:100%;min-height:44px}
+  .editor-top,.editor-mid{grid-template-columns:1fr!important;gap:6px}
+  .editor-tools{display:grid;grid-template-columns:1fr;gap:6px}
+  .editor-tools>*{width:100%}
+  .gd-admin-sound-group{margin-bottom:9px!important;padding:8px!important;border-radius:13px!important}
+  .gd-admin-sound-group>header{margin-bottom:7px!important;padding-bottom:7px!important}
+  .gd-admin-group-actions,.gd-admin-item-order>div{grid-template-columns:1fr 1fr!important;gap:5px!important}
+  .gd-admin-group-actions button,.gd-admin-item-order button{min-height:44px!important}
+  [data-group-drag],[data-item-drag]{min-height:44px!important;touch-action:none}
+  .gd-admin-group-items{gap:7px!important}
+  .gd-admin-sound-item{padding:8px!important}
+  .gd-admin-item-order{margin-bottom:6px!important}
+  .um-admin-tools{gap:6px!important}
+  .um-admin-tools input[type="search"]{font-size:16px;min-height:46px}
+  .um-assetrow{grid-template-columns:1fr!important;gap:7px!important;padding:9px 0!important}
+  .um-asset-actions{display:grid!important;grid-template-columns:repeat(2,1fr);width:100%;gap:5px!important}
+  .um-asset-actions>*{width:100%;min-height:44px}
+  .gamerow{grid-template-columns:1fr!important;gap:7px}
+  .gamerow>a{display:grid;place-items:center;min-height:44px;width:100%}
+  .authbox{margin:12px auto}
+
+  /* Bottom master music control gets thumb priority */
+  .dock{padding:8px max(8px,env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left))}
+  .dock-inner.dock-simple{grid-template-columns:minmax(0,.72fr) minmax(176px,1.28fr)!important;gap:8px}
+  .dock-inner.dock-simple .dock-status{display:grid!important;gap:2px;min-width:0}
+  .dock-status b{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dock-status small{font-size:8px;line-height:1.2;white-space:normal}
+  .dock-inner.dock-simple .stopmusic{min-width:0!important;width:100%;min-height:60px;padding:10px 12px!important;border-radius:15px;font-size:13px;font-weight:950;letter-spacing:.02em}
+  .toast{max-width:calc(100vw - 24px);white-space:normal;text-align:center;bottom:calc(var(--dock-h) + 10px)}
+}
+
+@media (max-width:380px){
+  .brand p{display:none}
+  .mixer-control b{font-size:7.5px}
+  .gd-group-grid{grid-template-columns:1fr 1fr!important}
+  .sound{min-height:88px!important}
+  .dock-inner.dock-simple{grid-template-columns:1fr!important}
+  .dock-inner.dock-simple .dock-status{display:none!important}
+  .dock-inner.dock-simple .stopmusic{min-height:62px}
+}
+
+@media (max-width:720px) and (orientation:landscape){
+  :root{--dock-h:76px}
+  .dock-inner.dock-simple .stopmusic{min-height:50px}
+  .gd-sb-tracklist{max-height:180px!important}
+}
+
+@media (hover:none) and (pointer:coarse){
+  button:active,.mode-nav a:active{transform:scale(.985)}
+}

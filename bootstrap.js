@@ -14,16 +14,16 @@ try{
 }catch(_e){}
 
 for(const src of [
-  './core-v3.js?v=admin-sound-order-v21',
-  './local-only-v1.js?v=admin-sound-order-v21',
-  './local-mixer-v1.js?v=admin-sound-order-v21',
-  './local-stop-fade-v1.js?v=admin-sound-order-v21',
-  './app-part4.js?v=admin-sound-order-v21',
-  './admin-soundboard-order-v1.js?v=admin-sound-order-v21',
-  './app-part3.js?v=admin-sound-order-v21',
-  './uploaded-music-v1.js?v=admin-sound-order-v21',
-  './soundboard-groups-v1.js?v=admin-sound-order-v21',
-  './soundboard-group-order-v1.js?v=admin-sound-order-v21'
+  './core-v3.js?v=admin-editor-v22',
+  './local-only-v1.js?v=admin-editor-v22',
+  './local-mixer-v1.js?v=admin-editor-v22',
+  './local-stop-fade-v1.js?v=admin-editor-v22',
+  './app-part4.js?v=admin-editor-v22',
+  './admin-soundboard-order-v1.js?v=admin-editor-v22',
+  './app-part3.js?v=admin-editor-v22',
+  './uploaded-music-v1.js?v=admin-editor-v22',
+  './soundboard-groups-v1.js?v=admin-editor-v22',
+  './soundboard-group-order-v1.js?v=admin-editor-v22'
 ]){
   await new Promise((resolve,reject)=>{
     const s=document.createElement('script');

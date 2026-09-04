@@ -6,7 +6,7 @@
   let scheduled = false;
 
   const el = id => document.getElementById(id);
-  const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
+  const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
   function gameKey() {
     let slug = '';
@@ -92,11 +92,15 @@
       bar.className = 'gd-group-order-bar';
       n.before(bar);
     }
-    bar.innerHTML = `<div><b>Soundboard Groups</b><small>Arrange categories for this device.</small></div><button type="button" data-group-order-toggle>${editing?'DONE':'⇅ REORDER GROUPS'}</button>`;
-    bar.querySelector('[data-group-order-toggle]')?.addEventListener('click', () => {
-      editing = !editing;
-      applyOrder();
-    });
+    const state = editing ? 'editing' : 'closed';
+    if (bar.dataset.state !== state) {
+      bar.dataset.state = state;
+      bar.innerHTML = `<div><b>Soundboard Groups</b><small>Arrange categories for this device.</small></div><button type="button" data-group-order-toggle>${editing?'DONE':'⇅ REORDER GROUPS'}</button>`;
+      bar.querySelector('[data-group-order-toggle]')?.addEventListener('click', () => {
+        editing = !editing;
+        applyOrder();
+      });
+    }
     if (editing) renderEditor(order); else el('gdGroupOrderEditor')?.remove();
   }
 

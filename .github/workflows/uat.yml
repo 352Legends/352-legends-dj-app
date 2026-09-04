@@ -13,24 +13,23 @@ jobs:
         shell: bash
         run: |
           node --check core-v3.js
-          node --check spotify-playback-v4.js
-          node --check spotify-browser-player-v6.js
-          node --check gameday-mixer-v1.js
-          node --check ios-volume-output-v1.js
-          node --check music-stop-fade-v1.js
+          node --check local-only-v1.js
+          node --check local-mixer-v1.js
+          node --check local-stop-fade-v1.js
           node --check uploaded-music-v1.js
           node --check soundboard-groups-v1.js
           node --check app-part3.js
           node --check app-part4.js
           node --check bootstrap.js
-          ! grep -R "open.spotify.com/embed\|iframe-api/v1" core-v3.js spotify-playback-v4.js spotify-browser-player-v6.js gameday-mixer-v1.js ios-volume-output-v1.js music-stop-fade-v1.js uploaded-music-v1.js soundboard-groups-v1.js index.html bootstrap.js
-          ! grep -E "sprint[0-9]|core-v2" bootstrap.js
-          ! grep -q "installAppleSdkBlocker" bootstrap.js
-          grep -q "gameday-mixer-v1.js" bootstrap.js
-          grep -q "ios-volume-output-v1.js" bootstrap.js
-          grep -q "music-stop-fade-v1.js" bootstrap.js
+          ! grep -qi "spotify" index.html
+          ! grep -Eq "spotify-playback-v4.js|spotify-browser-player-v6.js|gameday-mixer-v1.js|ios-volume-output-v1.js|music-stop-fade-v1.js" bootstrap.js
+          ! grep -Eq "spotify-auth|sdk.scdn.co|api.spotify.com|accounts.spotify.com" bootstrap.js
+          grep -q "local-only-v1.js" bootstrap.js
+          grep -q "local-mixer-v1.js" bootstrap.js
+          grep -q "local-stop-fade-v1.js" bootstrap.js
           grep -q "uploaded-music-v1.js" bootstrap.js
           grep -q "soundboard-groups-v1.js" bootstrap.js
+          grep -q "uploaded-only-v18" bootstrap.js
           grep -q "input.multiple = true" uploaded-music-v1.js
           grep -q "bulkUploadFiles" uploaded-music-v1.js
           grep -q "data-local-seek" uploaded-music-v1.js
@@ -39,44 +38,35 @@ jobs:
           grep -q "data-music-up" uploaded-music-v1.js
           grep -q "data-group-filter" soundboard-groups-v1.js
           grep -q "soundboardUploadedMusic" soundboard-groups-v1.js
-          grep -q "defaultMusicSource.*LOCAL" soundboard-groups-v1.js
           grep -q "data-f=\\\"group\\\"" app-part4.js
           grep -q "group,kind,icon,color,speechText" app-part4.js
-          grep -q "supports_volume" ios-volume-output-v1.js
-          grep -q "USE .*VOLUME-CAPABLE DEVICE\|volume-controllable Spotify Connect output" ios-volume-output-v1.js
-          grep -q "FADE_MS = 1000" music-stop-fade-v1.js
-          grep -q "streaming user-read-playback-state" core-v3.js
-          grep -q "loadPublishedGame('')" bootstrap.js
-          grep -q "spotify-auth" bootstrap.js
-          grep -q "spotify-browser-player-v6.js" bootstrap.js
-          grep -q "__gamedayIOSWebPlaybackMode" bootstrap.js
-          grep -q "handleServerSpotifyCallback" bootstrap.js
-          grep -q "startServerSpotifyAuth" bootstrap.js
-          grep -q "SPOTIFY_ACCOUNT_NOT_ALLOWED" bootstrap.js
-          grep -q "device_ids: \[deviceId\]" spotify-browser-player-v6.js
-          grep -q "me/player/play?device_id=" spotify-browser-player-v6.js
-          grep -q "activateElement" spotify-browser-player-v6.js
-          grep -q "togglePlay" spotify-browser-player-v6.js
-          grep -q "IOS_MAX_VOICE_BOOST" gameday-mixer-v1.js
-          grep -q "createDynamicsCompressor" gameday-mixer-v1.js
-          grep -q "spotifyPlayer.setVolume" gameday-mixer-v1.js
+          grep -q "p_spotify_url:null" app-part4.js
+          grep -q "p_spotify_client_id:null" app-part4.js
+          grep -q "p_default_music_source:'LOCAL'" app-part4.js
+          grep -q "default_spotify_url:null" app-part4.js
+          grep -q "default_music_source:'LOCAL'" app-part4.js
+          grep -q "FADE_MS = 1000" local-stop-fade-v1.js
+          grep -q "Uploaded music gain" local-mixer-v1.js
           grep -q "assetReferenceCount" app-part3.js
           grep -q "25\*1024\*1024" app-part3.js
+          grep -q "loadPublishedGame('')" bootstrap.js
       - name: Start local static site
         run: |
           python3 -m http.server 8080 >/tmp/gameday-http.log 2>&1 &
           echo $! >/tmp/gameday-http.pid
           sleep 1
-      - name: Browser operator UAT
+      - name: Uploaded-music-only runtime UAT
         shell: bash
         run: |
           CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
           test -n "$CHROME"
-          timeout 40s "$CHROME" --headless=new --no-sandbox --disable-gpu --virtual-time-budget=10000 --dump-dom "http://127.0.0.1:8080/tests/operator-uat.html?game=uat" >/tmp/uat-dom.html
-          cat /tmp/uat-dom.html
-          grep -q 'data-uat="PASS"' /tmp/uat-dom.html
-          grep -q 'Start Playback targets exact browser SDK device' /tmp/uat-dom.html
-          grep -q 'active phone is overridden by GameDay Browser Player' /tmp/uat-dom.html
+          timeout 40s "$CHROME" --headless=new --no-sandbox --disable-gpu --virtual-time-budget=3000 --dump-dom "http://127.0.0.1:8080/tests/local-only-uat.html" >/tmp/local-only-uat.html
+          cat /tmp/local-only-uat.html
+          grep -q 'data-uat="PASS"' /tmp/local-only-uat.html
+          grep -q 'legacy Spotify surfaces are removed' /tmp/local-only-uat.html
+          grep -q 'source switch cannot reactivate Spotify' /tmp/local-only-uat.html
+          grep -q 'old published Spotify default is converted to LOCAL' /tmp/local-only-uat.html
+          grep -q 'master start uses uploaded music' /tmp/local-only-uat.html
       - name: Uploaded music library UAT
         shell: bash
         run: |
@@ -90,71 +80,36 @@ jobs:
           grep -q 'LIVE PLAY blocks uploaded music start' /tmp/uploaded-music-uat.html
           grep -q 'bulk upload accepts multiple audio tracks in one action' /tmp/uploaded-music-uat.html
           grep -q 'admin can reorder published uploaded tracks' /tmp/uploaded-music-uat.html
-      - name: Grouped soundboard and local-default UAT
+      - name: Grouped soundboard UAT
         shell: bash
         run: |
           CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
           timeout 40s "$CHROME" --headless=new --no-sandbox --disable-gpu --virtual-time-budget=3000 --dump-dom "http://127.0.0.1:8080/tests/soundboard-groups-uat.html" >/tmp/soundboard-groups-uat.html
           cat /tmp/soundboard-groups-uat.html
           grep -q 'data-uat="PASS"' /tmp/soundboard-groups-uat.html
-          grep -q 'LOCAL default hides Spotify source control' /tmp/soundboard-groups-uat.html
-          grep -q 'LOCAL default hides Spotify player column' /tmp/soundboard-groups-uat.html
           grep -q 'Uploaded music player is beside soundboard' /tmp/soundboard-groups-uat.html
           grep -q 'Announcement groups include fast categories' /tmp/soundboard-groups-uat.html
           grep -q 'Group filter isolates selected announcement type' /tmp/soundboard-groups-uat.html
           grep -q 'Soundboard library directly selects a track' /tmp/soundboard-groups-uat.html
-      - name: Desktop Spotify mixer UAT
+      - name: Uploaded music mixer UAT
         shell: bash
         run: |
           CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
-          timeout 40s "$CHROME" --headless=new --no-sandbox --disable-gpu --virtual-time-budget=5000 --dump-dom "http://127.0.0.1:8080/tests/mixer-uat.html" >/tmp/mixer-uat.html
-          cat /tmp/mixer-uat.html
-          grep -q 'data-uat="PASS"' /tmp/mixer-uat.html
-          grep -q 'Spotify fader sets browser-player volume' /tmp/mixer-uat.html
-          grep -q 'announcement ducks Spotify by 3 dB' /tmp/mixer-uat.html
-          grep -q 'Spotify volume restores to user mix' /tmp/mixer-uat.html
-      - name: Master Stop Music fade UAT
+          timeout 40s "$CHROME" --headless=new --no-sandbox --disable-gpu --virtual-time-budget=3000 --dump-dom "http://127.0.0.1:8080/tests/local-mixer-uat.html" >/tmp/local-mixer-uat.html
+          cat /tmp/local-mixer-uat.html
+          grep -q 'data-uat="PASS"' /tmp/local-mixer-uat.html
+          grep -q 'music slider saves uploaded music gain' /tmp/local-mixer-uat.html
+          grep -q 'announcement slider remains independent' /tmp/local-mixer-uat.html
+      - name: Uploaded music one-second fade UAT
         shell: bash
         run: |
           CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
-          timeout 40s "$CHROME" --headless=new --no-sandbox --disable-gpu --virtual-time-budget=5000 --dump-dom "http://127.0.0.1:8080/tests/music-stop-fade-uat.html" >/tmp/music-fade-uat.html
-          cat /tmp/music-fade-uat.html
-          grep -q 'data-uat="PASS"' /tmp/music-fade-uat.html
-          grep -q 'Spotify Stop Music fades for about 1 second' /tmp/music-fade-uat.html
-          grep -q 'Spotify fade reaches zero before pause' /tmp/music-fade-uat.html
-          grep -q 'Uploaded music Stop Music also fades for about 1 second' /tmp/music-fade-uat.html
-          grep -q 'LIVE/STOP ALL immediate stop function remains unmodified' /tmp/music-fade-uat.html
-      - name: iOS browser audio UAT
-        shell: bash
-        run: |
-          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
-          test -n "$CHROME"
-          timeout 40s "$CHROME" --headless=new --no-sandbox --disable-gpu --virtual-time-budget=7000 --dump-dom "http://127.0.0.1:8080/tests/ios-browser-audio-uat.html" >/tmp/ios-uat-dom.html
-          cat /tmp/ios-uat-dom.html
-          grep -q 'data-uat="PASS"' /tmp/ios-uat-dom.html
-          grep -q 'iOS activateElement runs before network requests' /tmp/ios-uat-dom.html
-          grep -q 'iOS silent-playing recovery calls local togglePlay' /tmp/ios-uat-dom.html
-          grep -q 'iOS local SDK ends unpaused' /tmp/ios-uat-dom.html
-      - name: iOS backing mixer UAT
-        shell: bash
-        run: |
-          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
-          timeout 40s "$CHROME" --headless=new --no-sandbox --disable-gpu --virtual-time-budget=5000 --dump-dom "http://127.0.0.1:8080/tests/ios-mixer-uat.html" >/tmp/ios-mixer-uat.html
-          cat /tmp/ios-mixer-uat.html
-          grep -q 'data-uat="PASS"' /tmp/ios-mixer-uat.html
-          grep -q 'iOS detects locked Spotify browser volume' /tmp/ios-mixer-uat.html
-          grep -q 'iOS backing mix lifts announcer channel' /tmp/ios-mixer-uat.html
-          grep -q 'iOS announcement limiter is installed' /tmp/ios-mixer-uat.html
-      - name: iOS Spotify volume output UAT
-        shell: bash
-        run: |
-          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
-          timeout 40s "$CHROME" --headless=new --no-sandbox --disable-gpu --virtual-time-budget=3000 --dump-dom "http://127.0.0.1:8080/tests/ios-volume-output-uat.html" >/tmp/ios-volume-output-uat.html
-          cat /tmp/ios-volume-output-uat.html
-          grep -q 'data-uat="PASS"' /tmp/ios-volume-output-uat.html
-          grep -q 'iOS browser Spotify fader disables when volume is hardware-locked' /tmp/ios-volume-output-uat.html
-          grep -q 'iOS offers a volume-capable Spotify Connect output' /tmp/ios-volume-output-uat.html
-          grep -q 'Spotify fader re-enables on controllable output' /tmp/ios-volume-output-uat.html
+          timeout 40s "$CHROME" --headless=new --no-sandbox --disable-gpu --virtual-time-budget=4000 --dump-dom "http://127.0.0.1:8080/tests/local-stop-fade-uat.html" >/tmp/local-fade-uat.html
+          cat /tmp/local-fade-uat.html
+          grep -q 'data-uat="PASS"' /tmp/local-fade-uat.html
+          grep -q 'Uploaded music Stop Music fades for about 1 second' /tmp/local-fade-uat.html
+          grep -q 'Uploaded music fade reaches zero before pause' /tmp/local-fade-uat.html
+          grep -q 'LIVE STOP ALL remains immediate' /tmp/local-fade-uat.html
       - name: Root Home published-game regression
         shell: bash
         run: |
@@ -163,25 +118,7 @@ jobs:
           import json
           g=json.load(open('/tmp/game.json'))
           assert g.get('slug')
-          assert g.get('spotifyUrl','').startswith('https://open.spotify.com/playlist/')
-          assert g.get('spotifyClientId')
           assert isinstance(g.get('soundboardConfig'), list)
-          print('root Home resolves published Spotify config for', g['slug'])
-          PY
-      - name: Spotify auth bridge start regression
-        shell: bash
-        run: |
-          curl -fsS -X POST "https://voynfqugirhtvmmmtpav.supabase.co/functions/v1/spotify-auth" \
-            -H 'Content-Type: application/json' \
-            --data '{"action":"start","slug":"352-vs-legends","return_url":"https://352legends.github.io/352-legends-dj-app/?game=352-vs-legends"}' >/tmp/spotify-auth.json
-          python3 - <<'PY'
-          import json, urllib.parse
-          x=json.load(open('/tmp/spotify-auth.json'))
-          assert x.get('auth_url','').startswith('https://accounts.spotify.com/authorize?')
-          q=urllib.parse.parse_qs(urllib.parse.urlparse(x['auth_url']).query)
-          assert q['client_id'][0]=='15a6851c05f84d058d2ca265381ab17c'
-          assert q['redirect_uri'][0]=='https://352legends.github.io/352-legends-dj-app/'
-          assert 'streaming' in q['scope'][0].split()
-          assert q['show_dialog'][0]=='true'
-          print('Spotify server PKCE bridge start passed')
+          assert isinstance(g.get('musicTracks'), list)
+          print('root Home resolves published game data for', g['slug'], 'with', len(g['musicTracks']), 'uploaded music tracks')
           PY

@@ -4,7 +4,7 @@
 <div id="updateTarget"></div><button id="updateGame" disabled>Update Current Version</button><button id="publishGame">Publish New Version</button><div id="publishResult"></div><div id="gamesList"></div><pre id="out"></pre>
 <script>
 window.__errors=[];addEventListener('error',e=>__errors.push(String(e.message||e.error)));
-const $=id=>document.getElementById(id);const escapeHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $=id=>document.getElementById(id);const escapeHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
 const palette={orange:{},blue:{},green:{},red:{},purple:{},yellow:{},slate:{}};const effectIcons=[['','No icon'],['📣','Megaphone']];
 const defaultSoundboard=[{id:'first-down',label:'First Down',eyebrow:'DOWN',group:'Downs',kind:'announcement',icon:'',color:'green',speechText:'First down',assetId:''}];
 let soundboardDraft=structuredClone(defaultSoundboard);let selectedMusicIds=[];let renderedAssets=0;const messages=[];const rpcCalls=[];
@@ -12,7 +12,7 @@ function normalizeSoundItem(item){return {...item,kind:item.kind==='effect'?'eff
 function soundAssets(){return []}function renderAdminAssets(){renderedAssets++}function msg(t){messages.push(String(t))}function setTab(){}
 const currentGame={id:'game-1',slug:'alpha-game',title:'Alpha Game',home_team:'Alpha',away_team:'Beta',venue:'Field 1',kickoff_at:null,current_version_id:'version-7'};
 const currentVersion={id:'version-7',version:7,preset_name:'Friday Night',sound_assignments:{'first-down':'sound-1'},soundboard_config:[{id:'first-down',label:'First Down',eyebrow:'DOWN',group:'Downs',kind:'announcement',icon:'',color:'green',speechText:'First down'}],music_asset_ids:['music-1','music-2']};
-function chainFor(table){if(table==='published_games')return{select(){return{eq(){return{single:async()=>({data:currentGame,error:null})}},order:async()=>({data:[currentGame],error:null})}}};if(table==='game_versions')return{select(){return{eq(){return{single:async()=>({data:currentVersion,error:null})}}}};if(table==='admin_preferences')return{upsert:async()=>({error:null})};return{}}
+function chainFor(table){if(table==='published_games')return{select(){return{eq(){return{single:async()=>({data:currentGame,error:null})}},order:async()=>({data:[currentGame],error:null})}}};if(table==='game_versions')return{select(){return{eq(){return{single:async()=>({data:currentVersion,error:null})}}}}};if(table==='admin_preferences')return{upsert:async()=>({error:null})};return{}}
 const supabase={auth:{getUser:async()=>({data:{user:{id:'owner-1'}}})},from:chainFor,rpc:async(name,args)=>{rpcCalls.push({name,args});if(name==='update_current_game_version_v1')return{data:[{game_id:'game-1',version_id:'version-7',version:7,slug:'alpha-game'}],error:null};if(name==='publish_game_version_v3')return{data:[{game_id:'game-1',version_id:'version-8',version:8,slug:'alpha-game'}],error:null};return{data:null,error:{message:'unexpected rpc'}}}};
 </script>
 <script src="../app-part4.js"></script>

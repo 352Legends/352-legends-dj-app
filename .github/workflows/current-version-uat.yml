@@ -1,0 +1,41 @@
+name: Current Version UAT
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  current-version:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Static current-version checks
+        shell: bash
+        run: |
+          node --check app-part4.js
+          node --check bootstrap.js
+          ! grep -q "LIVE PLAY" index.html
+          grep -q 'id="updateGame"' index.html
+          grep -q 'Update Current Version' index.html
+          grep -q 'Edit Current' index.html
+          grep -q "update_current_game_version_v1" app-part4.js
+          grep -q "loadGameForUpdate" app-part4.js
+          grep -q "current-update-v25" bootstrap.js
+          grep -q "current-update-v25" index.html
+      - name: Start static site
+        run: |
+          python3 -m http.server 8080 >/tmp/gameday-current-http.log 2>&1 &
+          sleep 1
+      - name: Current published version browser UAT
+        shell: bash
+        run: |
+          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          test -n "$CHROME"
+          timeout 40s "$CHROME" --headless=new --no-sandbox --disable-gpu --virtual-time-budget=2500 --dump-dom "http://127.0.0.1:8080/tests/current-version-update-uat.html" >/tmp/current-version-uat.html
+          cat /tmp/current-version-uat.html
+          grep -q 'data-uat="PASS"' /tmp/current-version-uat.html
+          grep -q 'Edit Current loads current version number' /tmp/current-version-uat.html
+          grep -q 'Update Current Version calls overwrite RPC' /tmp/current-version-uat.html
+          grep -q 'Update keeps same current version target' /tmp/current-version-uat.html
+          grep -q 'Update does not call new-version RPC' /tmp/current-version-uat.html
+          grep -q 'Publish New Version remains a separate action' /tmp/current-version-uat.html

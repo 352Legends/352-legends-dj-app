@@ -7,9 +7,8 @@
 <title>GameDay • Youth Football Audio</title>
 <link rel="stylesheet" href="./app.css">
 <link rel="stylesheet" href="./sprint4.css">
-<!-- mobile-first-v23 predecessor; viewport-fit-v24 adds hard viewport containment -->
-<link rel="stylesheet" href="./mobile-first-v1.css?v=viewport-fit-v24">
-<link rel="stylesheet" href="./mobile-containment-v1.css?v=viewport-fit-v24">
+<link rel="stylesheet" href="./mobile-first-v1.css?v=current-update-v25">
+<link rel="stylesheet" href="./mobile-containment-v1.css?v=current-update-v25">
 </head>
 <body>
 <div class="app">
@@ -17,7 +16,6 @@
 <div class="mode-nav"><a href="./" id="opLink" class="on">Game Day</a><a href="?admin=1" id="adminLink">Admin Studio</a></div>
 
 <section class="operator" id="operator">
-  <div class="state-scroll"><div class="statebar live-only" id="statebar"><button data-state="LIVE" class="live" aria-pressed="false">LIVE PLAY</button></div></div>
   <section class="mixer-strip" aria-label="Game-day audio mixer">
     <div class="mixer-head"><b>Game-Day Audio Mixer</b><span>Always available</span></div>
     <div class="mixer-grid">
@@ -50,8 +48,8 @@
   <div id="studio" class="hidden"><div class="row spread" style="margin-bottom:10px"><div><h2 style="margin:0">Admin Studio</h2><div class="tiny" id="adminUser"></div></div><button class="secondary" id="signOut">Sign Out</button></div>
     <div class="admin-tabs"><button class="tabbtn on" data-admin-tab="soundboard">Soundboard</button><button class="tabbtn" data-admin-tab="music">Music Library</button><button class="tabbtn" data-admin-tab="publish">Publish</button></div>
     <div id="adminSoundboard" class="tabpane on"><div class="admin-grid"><section class="panel"><h2>Sound Uploads</h2><div class="sub">Upload MP3/WAV/M4A/OGG announcements and sound effects. Preview any upload, then use Stop Preview to stop it immediately.</div><div class="field"><label>Audio file</label><input id="soundFile" type="file" accept="audio/*"></div><button class="primary" id="uploadSound">Upload Sound</button><div id="soundAssets"></div></section><section class="panel"><div class="row spread"><div><h2>Soundboard Editor</h2><div class="sub" style="margin:2px 0 0">Collapse groups, drag groups into Game Day order, drag announcements/effects inside or between groups, or use the arrow controls. Changing an announcement's Group field moves it to that group immediately. The saved order becomes the default volunteer Soundboard layout.</div></div><button class="primary" id="addSoundButton">+ Add</button></div><div id="soundEditor"></div><div class="row" style="margin-top:10px"><button class="secondary" id="resetSoundboard">Reset Defaults</button><button class="primary" id="saveSoundDraft">Save Draft</button></div></section></div></div>
-    <div id="adminMusic" class="tabpane"><div class="admin-grid" style="grid-template-columns:1fr"><section class="panel"><h2>Uploaded Music Library</h2><div class="sub">Upload multiple league-owned tracks at once, choose which tracks publish, and set their game-day play order.</div><div class="field"><label>Audio files</label><input id="musicFile" type="file" accept="audio/*" multiple></div><button class="primary" id="uploadMusic">Upload Music Files</button><div id="musicAssets"></div><div class="note" style="margin-top:10px">Only checked tracks are included in the next published game version. Use the Up/Down controls to set the default play order.</div></section></div></div>
-    <div id="adminPublish" class="tabpane"><section class="panel"><h2>Publish Game</h2><div class="sub">Publishing creates a new immutable version. Existing volunteer links receive the newest version for that slug. Uploaded Music is the game-day music source.</div><div class="admin-grid"><div><div class="field"><label>Title</label><input id="pubTitle" placeholder="10U Home Game"></div><div class="field"><label>Home team</label><input id="homeTeam" placeholder="Legends"></div><div class="field"><label>Away team</label><input id="awayTeam" placeholder="Visitors"></div><div class="field"><label>Venue</label><input id="venue" placeholder="Main Field"></div></div><div><div class="field"><label>Preset name</label><input id="presetName" value="Game Day"></div><div class="field"><label>Game URL slug</label><input id="slug" placeholder="legends-vs-tigers"></div><div class="note">Published games use the selected Uploaded Music tracks from the Music Library and the saved Soundboard group/button order.</div></div></div><button class="primary" id="publishGame">Publish New Version</button><div id="publishResult" style="margin-top:9px"></div></section><section class="panel"><h2>Published Games</h2><div id="gamesList"></div></section></div>
+    <div id="adminMusic" class="tabpane"><div class="admin-grid" style="grid-template-columns:1fr"><section class="panel"><h2>Uploaded Music Library</h2><div class="sub">Upload multiple league-owned tracks at once, choose which tracks publish, and set their game-day play order.</div><div class="field"><label>Audio files</label><input id="musicFile" type="file" accept="audio/*" multiple></div><button class="primary" id="uploadMusic">Upload Music Files</button><div id="musicAssets"></div><div class="note" style="margin-top:10px">Only checked tracks are included in the current game configuration. Use the Up/Down controls to set the default play order.</div></section></div></div>
+    <div id="adminPublish" class="tabpane"><section class="panel"><h2>Publish & Update Game</h2><div class="sub">Use Update Current Version for routine changes without creating another version number. Use Publish New Version when you intentionally want a new historical version.</div><div id="updateTarget" class="note" style="margin-bottom:10px">Choose <b>Edit Current</b> from a published game below to load it for updating.</div><div class="admin-grid"><div><div class="field"><label>Title</label><input id="pubTitle" placeholder="10U Home Game"></div><div class="field"><label>Home team</label><input id="homeTeam" placeholder="Legends"></div><div class="field"><label>Away team</label><input id="awayTeam" placeholder="Visitors"></div><div class="field"><label>Venue</label><input id="venue" placeholder="Main Field"></div></div><div><div class="field"><label>Preset name</label><input id="presetName" value="Game Day"></div><div class="field"><label>Game URL slug</label><input id="slug" placeholder="legends-vs-tigers"></div><div class="note">Updating keeps the current version number and volunteer URL. Publishing creates a new version and makes it current.</div></div></div><div class="publish-actions"><button class="primary" id="updateGame" disabled>Update Current Version</button><button class="secondary" id="publishGame">Publish New Version</button></div><div id="publishResult" style="margin-top:9px"></div></section><section class="panel"><h2>Published Games</h2><div class="sub">Choose Edit Current to load a game's current Soundboard, music selection, and publish settings into Admin Studio.</div><div id="gamesList"></div></section></div>
   </div>
 </section>
 <div class="footer tiny" style="text-align:center;padding-top:13px">GameDay • Youth Football Game Operations</div>
@@ -59,6 +57,6 @@
 
 <div class="dock"><div class="dock-inner dock-simple"><div class="dock-status"><b id="dockSource">Uploaded Music</b><small id="dockDetail">START selects a fresh random track</small></div><button class="stopmusic is-start" id="stopMusic" aria-pressed="false">▶ START MUSIC</button></div></div>
 <div class="toast" id="toast"></div>
-<script type="module" src="./bootstrap.js?v=viewport-fit-v24"></script>
+<script type="module" src="./bootstrap.js?v=current-update-v25"></script>
 </body>
 </html>

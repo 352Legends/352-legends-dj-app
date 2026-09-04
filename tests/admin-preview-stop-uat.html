@@ -1,0 +1,37 @@
+<!doctype html><html><body data-uat="RUNNING">
+<input id="email"><input id="password"><button id="signIn"></button><button id="signUp"></button><button id="signOut"></button>
+<input id="soundFile" type="file"><input id="musicFile" type="file"><button id="uploadSound"></button><button id="uploadMusic"></button>
+<div id="soundAssets"></div><div id="musicAssets"></div><pre id="out"></pre>
+<script>
+window.__errors=[];window.addEventListener('error',e=>__errors.push(String(e.message||e.error)));
+const $=id=>document.getElementById(id);const escapeHtml=v=>String(v??'');
+let assets=[{id:'sound1',name:'Touchdown Horn.mp3',kind:'sound',storage_path:'sound1.mp3'}],selectedMusicIds=[],soundboardDraft=[];
+let previewAudio=null,previewKind=null,musicVolume=.8,soundVolume=.9,lastAudio=null;
+function msg(v){window.__lastMessage=v}function showSession(){}function refreshSession(){}function renderSoundEditor(){}function savePreferences(){return Promise.resolve()}function loadGames(){}
+const supabase={
+ auth:{onAuthStateChange(){},signInWithPassword:async()=>({error:null}),signUp:async()=>({error:null}),signOut(){},getUser:async()=>({data:{user:{id:'u1'}}})},
+ storage:{from(){return {createSignedUrl:async()=>({data:{signedUrl:'https://example.test/audio.mp3'},error:null}),upload:async()=>({error:null}),remove:async()=>({error:null})}}},
+ from(){return {select(){return this},order(){return Promise.resolve({data:[],error:null})},eq(){return this},maybeSingle(){return Promise.resolve({data:null,error:null})},delete(){return this},insert(){return this},single(){return Promise.resolve({data:null,error:null})}}}
+};
+window.Audio=function(src){lastAudio={src,currentTime:9,paused:true,volume:1,crossOrigin:'',onended:null,onerror:null,pause(){this.paused=true},play(){this.paused=false;return Promise.resolve()}};return lastAudio};
+</script>
+<script src="../app-part3.js"></script>
+<script>
+const results=[];const ok=(name,cond,detail='')=>results.push({name,pass:!!cond,detail});
+(async()=>{
+ renderAdminAssets();
+ ok('Sound Uploads exposes Stop Preview control',!!document.getElementById('stopSoundPreview'),'');
+ ok('Stop Preview is disabled before playback',document.getElementById('stopSoundPreview').disabled===true,'');
+ document.querySelector('[data-preview="sound1"]')?.click();
+ await new Promise(r=>setTimeout(r,40));
+ ok('Preview starts uploaded sound',!!previewAudio&&lastAudio?.paused===false,'');
+ ok('active Preview button becomes a Stop control',document.querySelector('[data-preview="sound1"]')?.textContent.includes('Stop'),document.querySelector('[data-preview="sound1"]')?.textContent||'');
+ ok('Stop Preview enables while audio is playing',document.getElementById('stopSoundPreview').disabled===false,'');
+ document.getElementById('stopSoundPreview').click();
+ ok('Stop Preview pauses and resets preview audio',lastAudio?.paused===true&&lastAudio?.currentTime===0,'');
+ ok('preview state clears after stop',previewAudio===null&&previewKind===null,'');
+ ok('Preview button returns to normal after stop',document.querySelector('[data-preview="sound1"]')?.textContent==='Preview',document.querySelector('[data-preview="sound1"]')?.textContent||'');
+ ok('no page errors',__errors.length===0,JSON.stringify(__errors));
+ document.getElementById('out').textContent=JSON.stringify(results,null,2);document.body.dataset.uat=results.every(x=>x.pass)?'PASS':'FAIL';
+})();
+</script></body></html>

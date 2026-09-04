@@ -1,0 +1,45 @@
+<!doctype html><html><body data-uat="RUNNING">
+<section id="soundPane" class="tabpane on">
+  <section class="panel"><h2>Soundboard</h2><div class="sound-section"><div id="announcementsBoard"></div></div><div class="sound-section"><div id="effectsBoard"></div></div></section>
+  <section class="panel"><div id="now">Ready</div></section>
+</section>
+<section id="musicPane" class="tabpane"><div class="music-layout"><div><div class="source-toggle"><button id="localSourceBtn">Uploaded Music</button><button id="spotifySourceBtn">Spotify</button></div><section class="panel"><div id="localTracks"><button data-local-shuffle>shuffle</button><button data-local-repeat>repeat</button></div></section></div><div id="spotifyColumn"><section class="spotify-shell">Spotify Player</section><div class="note">Spotify controls</div></div></div></section>
+<div id="toast"></div><pre id="results"></pre>
+<script>
+window.__errors=[];window.addEventListener('error',e=>__errors.push(String(e.message||e.error)));
+let gameState='BREAK',musicSource='LOCAL',localPlaying=false,musicIndex=0,musicAudio={currentTime:0,duration:120};
+let currentGame={defaultMusicSource:'LOCAL',musicTracks:[{name:'Warmup.mp3',src:'a'},{name:'Defense.mp3',src:'b'},{name:'Halftime.mp3',src:'c'}],soundboardConfig:[
+{id:'first-down',label:'First Down',eyebrow:'DOWN',kind:'announcement',group:'Downs'},
+{id:'q1',label:'1st Quarter',eyebrow:'QUARTER',kind:'announcement',group:'Quarters'},
+{id:'touchdown',label:'Touchdown',eyebrow:'SCORE',kind:'announcement',group:'Scoring Plays'},
+{id:'sponsor1',label:'Thanks ABC Auto',eyebrow:'SPONSOR',kind:'announcement',group:'Sponsors'},
+{id:'horn',label:'Air Horn',eyebrow:'FX',kind:'effect'}
+]};
+function activeSoundboard(){return currentGame.soundboardConfig}
+function createSoundButton(item){const b=document.createElement('button');b.className='sound';b.dataset.soundId=item.id;b.textContent=item.label;return b}
+function updateSoundPlayingUI(){}
+function localTracks(){return currentGame.musicTracks}
+function setMusicSource(v){musicSource=v}
+function playLocal(){localPlaying=true}
+function pauseLocal(){localPlaying=false}
+function renderBoard(){}
+async function loadPublishedGame(){return currentGame}
+function msg(){}
+let playedIndex=-1;
+window.__gamedayUploadedMusicV1={state:()=>({trackCount:3,musicIndex,localPlaying,shuffle:false,repeat:'all'}),playTrack:i=>{playedIndex=i;musicIndex=i;localPlaying=true},previous:()=>{musicIndex=(musicIndex+2)%3},next:()=>{musicIndex=(musicIndex+1)%3}};
+</script>
+<script src="../soundboard-groups-v1.js"></script>
+<script>
+(async()=>{const sleep=ms=>new Promise(r=>setTimeout(r,ms)),out=[],ok=(n,v,d='')=>out.push({name:n,pass:!!v,detail:d});await sleep(120);
+ok('LOCAL default hides Spotify source control',document.getElementById('spotifySourceBtn').hidden,String(document.getElementById('spotifySourceBtn').hidden));
+ok('LOCAL default hides Spotify player column',document.getElementById('spotifyColumn').hidden,String(document.getElementById('spotifyColumn').hidden));
+ok('Uploaded music player is beside soundboard',document.querySelector('#gdSoundboardWorkspace #soundboardUploadedMusic')&&document.querySelectorAll('#gdSoundboardWorkspace>.panel').length===2,String(document.querySelectorAll('#gdSoundboardWorkspace>.panel').length));
+ok('Soundboard music library lists published tracks',document.querySelectorAll('#soundboardMusicPlayer [data-sbm-track]').length===3,String(document.querySelectorAll('#soundboardMusicPlayer [data-sbm-track]').length));
+const chips=Array.from(document.querySelectorAll('[data-group-filter]')).map(x=>x.textContent.trim());
+ok('Announcement groups include fast categories',chips.some(x=>x.startsWith('Downs'))&&chips.some(x=>x.startsWith('Quarters'))&&chips.some(x=>x.startsWith('Scoring Plays'))&&chips.some(x=>x.startsWith('Sponsors'))&&chips.some(x=>x.startsWith('Sound Effects')),JSON.stringify(chips));
+const downs=document.querySelector('[data-group-filter="Downs"]');downs?.click();await sleep(30);ok('Group filter isolates selected announcement type',document.querySelectorAll('[data-group-section]').length===1&&document.querySelector('[data-group-section="Downs"]')&&document.body.textContent.includes('First Down')&&!document.querySelector('#gdGroupedSoundboard')?.textContent.includes('1st Quarter'),document.getElementById('gdGroupedSoundboard')?.textContent||'');
+window.__gamedaySoundboardGroupsV1.setGroup('ALL');await sleep(30);document.querySelector('[data-sbm-track="1"]')?.click();await sleep(40);ok('Soundboard library directly selects a track',playedIndex===1,String(playedIndex));
+ok('Sound Effects are automatically grouped when no group is published',document.querySelector('[data-group-filter="Sound Effects"]')!=null,'');
+ok('no page errors',__errors.length===0,JSON.stringify(__errors));
+document.getElementById('results').textContent=JSON.stringify(out,null,2);document.body.dataset.uat=out.every(x=>x.pass)?'PASS':'FAIL';})();
+</script></body></html>

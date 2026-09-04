@@ -1,0 +1,40 @@
+<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="stylesheet" href="../app.css"><link rel="stylesheet" href="../sprint4.css"><link rel="stylesheet" href="../mobile-first-v1.css"></head><body data-uat="RUNNING">
+<div class="app">
+<header class="top"><div class="brand"><div class="logo">🏈</div><div><h1>GameDay</h1><p>Volunteer Audio Console</p></div></div></header>
+<div class="mode-nav"><a class="on">Game Day</a><a>Admin Studio</a></div>
+<section class="operator">
+<div class="state-scroll"><div class="statebar live-only"><button class="live">LIVE PLAY</button></div></div>
+<section class="mixer-strip"><div class="mixer-head"><b>Game-Day Audio Mixer</b><span>Always available</span></div><div class="mixer-grid"><label class="mixer-control"><span><b>Announcements & Effects</b><em>95%</em></span><input type="range"></label><label class="mixer-control"><span><b>Music</b><em>78%</em></span><input type="range"></label></div></section>
+<div class="game-tabs"><button class="tabbtn on">Soundboard</button><button class="tabbtn">Music</button></div>
+<div id="soundPane"><section class="panel"><div id="gdGroupedSoundboard"><div class="gd-group-order-bar"><div><b>Soundboard Groups</b><small>Arrange</small></div><button>Reorder</button></div><div class="gd-group-nav"><button class="gd-group-chip">ALL</button><button class="gd-group-chip">Downs</button><button class="gd-group-chip">Scoring Plays</button></div><div class="gd-group-stack"><section class="gd-group-section"><div class="gd-group-heading"><b>Downs</b></div><div class="gd-group-grid"><button class="sound announcement"><small>DOWN</small><strong>First Down</strong></button><button class="sound announcement"><small>DOWN</small><strong>Third Down</strong></button></div></section></div></div></section><section class="panel"><div class="now">Ready</div><div class="note">Automatic mix information</div><button class="danger" id="stopAllAudio">STOP ALL AUDIO</button></section></div>
+</section>
+<section class="admin on"><div class="admin-tabs"><button class="tabbtn on">Soundboard</button><button class="tabbtn">Music</button><button class="tabbtn">Publish</button></div><div class="admin-grid"><section class="panel"><div class="field"><label>Name</label><input id="mobileInput"></div><div class="assetrow"><div><b>Upload</b></div><div class="row"><button class="mini">Preview</button><button class="danger">Delete</button></div></div></section><section class="panel"><div class="row spread"><div><h2>Editor</h2></div><button class="primary">Add</button></div></section></div></section>
+</div>
+<div class="dock"><div class="dock-inner dock-simple"><div class="dock-status"><b>Uploaded Music</b><small>START selects random track</small></div><button class="stopmusic">START MUSIC</button></div></div>
+<pre id="out"></pre>
+<script>
+const results=[];const ok=(name,cond,detail='')=>results.push({name,pass:!!cond,detail});const px=v=>parseFloat(v)||0;
+addEventListener('load',()=>setTimeout(()=>{
+ const state=getComputedStyle(document.querySelector('.statebar.live-only'));
+ const mixer=getComputedStyle(document.querySelector('.mixer-grid'));
+ const mode=getComputedStyle(document.querySelector('.mode-nav'));
+ const tabs=getComputedStyle(document.querySelector('.game-tabs'));
+ const sound=getComputedStyle(document.querySelector('.sound'));
+ const input=getComputedStyle(document.getElementById('mobileInput'));
+ const stop=getComputedStyle(document.querySelector('.stopmusic'));
+ const chip=getComputedStyle(document.querySelector('.gd-group-chip'));
+ const adminGrid=getComputedStyle(document.querySelector('.admin-grid'));
+ ok('mobile viewport is active',innerWidth<=420,String(innerWidth));
+ ok('LIVE PLAY uses full-width mobile safety layout',state.minWidth==='0px'&&state.gridTemplateColumns.split(' ').length===1,state.minWidth+' / '+state.gridTemplateColumns);
+ ok('mobile mixer stays compact in two columns',mixer.gridTemplateColumns.split(' ').length===2,mixer.gridTemplateColumns);
+ ok('primary mode navigation is sticky',mode.position==='sticky',mode.position);
+ ok('game tabs remain sticky below primary navigation',tabs.position==='sticky'&&px(tabs.top)>=50,tabs.position+' / '+tabs.top);
+ ok('soundboard buttons are large touch targets',px(sound.minHeight)>=88,sound.minHeight);
+ ok('group chips are touch friendly',px(chip.minHeight)>=40,chip.minHeight);
+ ok('admin inputs use 16px text to avoid iOS form zoom',px(input.fontSize)>=16,input.fontSize);
+ ok('admin layout becomes single column',adminGrid.gridTemplateColumns.split(' ').length===1,adminGrid.gridTemplateColumns);
+ ok('master music button has thumb-sized height',px(stop.minHeight)>=60,stop.minHeight);
+ ok('mobile page has no accidental horizontal overflow',document.documentElement.scrollWidth<=innerWidth+1,document.documentElement.scrollWidth+' / '+innerWidth);
+ const pass=results.every(x=>x.pass);document.body.dataset.uat=pass?'PASS':'FAIL';document.getElementById('out').textContent=JSON.stringify(results,null,2);
+},80));
+</script></body></html>

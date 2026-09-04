@@ -19,22 +19,29 @@ jobs:
           node --check ios-volume-output-v1.js
           node --check music-stop-fade-v1.js
           node --check uploaded-music-v1.js
+          node --check soundboard-groups-v1.js
           node --check app-part3.js
           node --check app-part4.js
           node --check bootstrap.js
-          ! grep -R "open.spotify.com/embed\|iframe-api/v1" core-v3.js spotify-playback-v4.js spotify-browser-player-v6.js gameday-mixer-v1.js ios-volume-output-v1.js music-stop-fade-v1.js uploaded-music-v1.js index.html bootstrap.js
+          ! grep -R "open.spotify.com/embed\|iframe-api/v1" core-v3.js spotify-playback-v4.js spotify-browser-player-v6.js gameday-mixer-v1.js ios-volume-output-v1.js music-stop-fade-v1.js uploaded-music-v1.js soundboard-groups-v1.js index.html bootstrap.js
           ! grep -E "sprint[0-9]|core-v2" bootstrap.js
           ! grep -q "installAppleSdkBlocker" bootstrap.js
           grep -q "gameday-mixer-v1.js" bootstrap.js
           grep -q "ios-volume-output-v1.js" bootstrap.js
           grep -q "music-stop-fade-v1.js" bootstrap.js
           grep -q "uploaded-music-v1.js" bootstrap.js
+          grep -q "soundboard-groups-v1.js" bootstrap.js
           grep -q "input.multiple = true" uploaded-music-v1.js
           grep -q "bulkUploadFiles" uploaded-music-v1.js
           grep -q "data-local-seek" uploaded-music-v1.js
           grep -q "data-local-shuffle" uploaded-music-v1.js
           grep -q "data-local-repeat" uploaded-music-v1.js
           grep -q "data-music-up" uploaded-music-v1.js
+          grep -q "data-group-filter" soundboard-groups-v1.js
+          grep -q "soundboardUploadedMusic" soundboard-groups-v1.js
+          grep -q "defaultMusicSource.*LOCAL" soundboard-groups-v1.js
+          grep -q "data-f=\\\"group\\\"" app-part4.js
+          grep -q "group,kind,icon,color,speechText" app-part4.js
           grep -q "supports_volume" ios-volume-output-v1.js
           grep -q "USE .*VOLUME-CAPABLE DEVICE\|volume-controllable Spotify Connect output" ios-volume-output-v1.js
           grep -q "FADE_MS = 1000" music-stop-fade-v1.js
@@ -83,6 +90,19 @@ jobs:
           grep -q 'LIVE PLAY blocks uploaded music start' /tmp/uploaded-music-uat.html
           grep -q 'bulk upload accepts multiple audio tracks in one action' /tmp/uploaded-music-uat.html
           grep -q 'admin can reorder published uploaded tracks' /tmp/uploaded-music-uat.html
+      - name: Grouped soundboard and local-default UAT
+        shell: bash
+        run: |
+          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          timeout 40s "$CHROME" --headless=new --no-sandbox --disable-gpu --virtual-time-budget=3000 --dump-dom "http://127.0.0.1:8080/tests/soundboard-groups-uat.html" >/tmp/soundboard-groups-uat.html
+          cat /tmp/soundboard-groups-uat.html
+          grep -q 'data-uat="PASS"' /tmp/soundboard-groups-uat.html
+          grep -q 'LOCAL default hides Spotify source control' /tmp/soundboard-groups-uat.html
+          grep -q 'LOCAL default hides Spotify player column' /tmp/soundboard-groups-uat.html
+          grep -q 'Uploaded music player is beside soundboard' /tmp/soundboard-groups-uat.html
+          grep -q 'Announcement groups include fast categories' /tmp/soundboard-groups-uat.html
+          grep -q 'Group filter isolates selected announcement type' /tmp/soundboard-groups-uat.html
+          grep -q 'Soundboard library directly selects a track' /tmp/soundboard-groups-uat.html
       - name: Desktop Spotify mixer UAT
         shell: bash
         run: |

@@ -14,14 +14,14 @@ try{
 }catch(_e){}
 
 for(const src of [
-  './core-v3.js?v=uploaded-only-v18',
-  './local-only-v1.js?v=uploaded-only-v18',
-  './local-mixer-v1.js?v=uploaded-only-v18',
-  './local-stop-fade-v1.js?v=uploaded-only-v18',
-  './app-part4.js?v=uploaded-only-v18',
-  './app-part3.js?v=uploaded-only-v18',
-  './uploaded-music-v1.js?v=uploaded-only-v18',
-  './soundboard-groups-v1.js?v=uploaded-only-v18'
+  './core-v3.js?v=random-music-v19',
+  './local-only-v1.js?v=random-music-v19',
+  './local-mixer-v1.js?v=random-music-v19',
+  './local-stop-fade-v1.js?v=random-music-v19',
+  './app-part4.js?v=random-music-v19',
+  './app-part3.js?v=random-music-v19',
+  './uploaded-music-v1.js?v=random-music-v19',
+  './soundboard-groups-v1.js?v=random-music-v19'
 ]){
   await new Promise((resolve,reject)=>{
     const s=document.createElement('script');

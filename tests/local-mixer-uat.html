@@ -1,0 +1,25 @@
+<!doctype html><html><body data-uat="RUNNING">
+<label class="mixer-control"><span><b>Announcements</b><em id="soundVolumeLabel"></em></span><input id="soundVolume" type="range" min="0" max="100" value="95"></label>
+<label class="mixer-control"><span><b>Music</b><em id="musicVolumeLabel"></em></span><input id="musicVolume" type="range" min="0" max="100" value="78"></label>
+<pre id="out"></pre>
+<script>
+let soundVolume=.95,musicVolume=.78,soundApply=0,musicApply=0,statuses={};
+function applySoundVolume(){soundApply++}function applyLocalVolume(){musicApply++}
+function setMixerStatus(id,text,mode){statuses[id]={text,mode}}
+document.getElementById('soundVolume').addEventListener('input',e=>{soundVolume=Number(e.target.value)/100});
+document.getElementById('musicVolume').addEventListener('input',e=>{musicVolume=Number(e.target.value)/100});
+</script>
+<script src="../local-mixer-v1.js"></script>
+<script>
+const results=[];function ok(name,cond){results.push([name,!!cond])}
+setTimeout(()=>{
+  ok('mixer restores initial gains',soundApply>0&&musicApply>0);
+  const m=document.getElementById('musicVolume');m.value='42';m.dispatchEvent(new Event('input',{bubbles:true}));
+  const s=document.getElementById('soundVolume');s.value='81';s.dispatchEvent(new Event('input',{bubbles:true}));
+  const saved=JSON.parse(localStorage.getItem('gameday.mixer.local.v1')||'{}');
+  ok('music slider saves uploaded music gain',Math.abs(saved.music-.42)<.001&&document.getElementById('musicVolumeLabel').textContent==='42%');
+  ok('announcement slider remains independent',Math.abs(saved.sound-.81)<.001&&document.getElementById('soundVolumeLabel').textContent==='81%');
+  ok('music status identifies uploaded gain',/Uploaded music gain/.test(statuses.musicVolume?.text||''));
+  const pass=results.every(x=>x[1]);document.body.dataset.uat=pass?'PASS':'FAIL';document.getElementById('out').textContent=results.map(x=>(x[1]?'PASS ':'FAIL ')+x[0]).join('\n');
+},80);
+</script></body></html>

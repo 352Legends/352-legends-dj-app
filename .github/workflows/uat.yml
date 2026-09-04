@@ -26,6 +26,14 @@ jobs:
           ! grep -qi "spotify" index.html
           ! grep -Eq "spotify-playback-v4.js|spotify-browser-player-v6.js|gameday-mixer-v1.js|ios-volume-output-v1.js|music-stop-fade-v1.js" bootstrap.js
           ! grep -Eq "spotify-auth|sdk.scdn.co|api.spotify.com|accounts.spotify.com" bootstrap.js
+          grep -q "mobile-first-v1.css" index.html
+          grep -q "mobile-first-v23" index.html
+          grep -q "mobile-first-v23" bootstrap.js
+          grep -q "statebar.live-only" mobile-first-v1.css
+          grep -q "grid-template-columns:1fr 1fr!important" mobile-first-v1.css
+          grep -q "font-size:16px!important" mobile-first-v1.css
+          grep -q "min-height:60px" mobile-first-v1.css
+          grep -q "gd-group-nav" mobile-first-v1.css
           grep -q "local-only-v1.js" bootstrap.js
           grep -q "local-mixer-v1.js" bootstrap.js
           grep -q "local-stop-fade-v1.js" bootstrap.js
@@ -33,7 +41,6 @@ jobs:
           grep -q "soundboard-groups-v1.js" bootstrap.js
           grep -q "soundboard-group-order-v1.js" bootstrap.js
           grep -q "admin-soundboard-order-v1.js" bootstrap.js
-          grep -q "admin-editor-v22" bootstrap.js
           grep -q "input.multiple = true" uploaded-music-v1.js
           grep -q "bulkUploadFiles" uploaded-music-v1.js
           grep -q "data-local-seek" uploaded-music-v1.js
@@ -80,6 +87,20 @@ jobs:
           python3 -m http.server 8080 >/tmp/gameday-http.log 2>&1 &
           echo $! >/tmp/gameday-http.pid
           sleep 1
+      - name: Mobile-first layout UAT
+        shell: bash
+        run: |
+          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          test -n "$CHROME"
+          timeout 40s "$CHROME" --headless=new --no-sandbox --disable-gpu --window-size=390,844 --force-device-scale-factor=1 --virtual-time-budget=2500 --dump-dom "http://127.0.0.1:8080/tests/mobile-first-uat.html" >/tmp/mobile-first-uat.html
+          cat /tmp/mobile-first-uat.html
+          grep -q 'data-uat="PASS"' /tmp/mobile-first-uat.html
+          grep -q 'LIVE PLAY uses full-width mobile safety layout' /tmp/mobile-first-uat.html
+          grep -q 'mobile mixer stays compact in two columns' /tmp/mobile-first-uat.html
+          grep -q 'soundboard buttons are large touch targets' /tmp/mobile-first-uat.html
+          grep -q 'admin inputs use 16px text to avoid iOS form zoom' /tmp/mobile-first-uat.html
+          grep -q 'master music button has thumb-sized height' /tmp/mobile-first-uat.html
+          grep -q 'mobile page has no accidental horizontal overflow' /tmp/mobile-first-uat.html
       - name: Uploaded-music-only random master UAT
         shell: bash
         run: |

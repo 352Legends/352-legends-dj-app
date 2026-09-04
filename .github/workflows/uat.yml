@@ -29,7 +29,7 @@ jobs:
           grep -q "local-stop-fade-v1.js" bootstrap.js
           grep -q "uploaded-music-v1.js" bootstrap.js
           grep -q "soundboard-groups-v1.js" bootstrap.js
-          grep -q "uploaded-only-v18" bootstrap.js
+          grep -q "random-music-v19" bootstrap.js
           grep -q "input.multiple = true" uploaded-music-v1.js
           grep -q "bulkUploadFiles" uploaded-music-v1.js
           grep -q "data-local-seek" uploaded-music-v1.js
@@ -45,7 +45,12 @@ jobs:
           grep -q "p_default_music_source:'LOCAL'" app-part4.js
           grep -q "default_spotify_url:null" app-part4.js
           grep -q "default_music_source:'LOCAL'" app-part4.js
-          grep -q "FADE_MS = 1000" local-stop-fade-v1.js
+          grep -q "chooseFreshRandomIndex" local-only-v1.js
+          grep -q "lastMasterRandomIndex" local-only-v1.js
+          grep -q "musicAudio.currentTime = 0" local-only-v1.js
+          grep -q "gd-random-master" local-only-v1.js
+          grep -q "FADE_MS = 3000" local-stop-fade-v1.js
+          grep -q "Music fading out • 3 sec" local-stop-fade-v1.js
           grep -q "Uploaded music gain" local-mixer-v1.js
           grep -q "assetReferenceCount" app-part3.js
           grep -q "25\*1024\*1024" app-part3.js
@@ -55,7 +60,7 @@ jobs:
           python3 -m http.server 8080 >/tmp/gameday-http.log 2>&1 &
           echo $! >/tmp/gameday-http.pid
           sleep 1
-      - name: Uploaded-music-only runtime UAT
+      - name: Uploaded-music-only random master UAT
         shell: bash
         run: |
           CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
@@ -65,8 +70,12 @@ jobs:
           grep -q 'data-uat="PASS"' /tmp/local-only-uat.html
           grep -q 'legacy Spotify surfaces are removed' /tmp/local-only-uat.html
           grep -q 'source switch cannot reactivate Spotify' /tmp/local-only-uat.html
-          grep -q 'old published Spotify default is converted to LOCAL' /tmp/local-only-uat.html
+          grep -q 'master control is large and touch-friendly' /tmp/local-only-uat.html
           grep -q 'master start uses uploaded music' /tmp/local-only-uat.html
+          grep -q 'random master start begins track at zero' /tmp/local-only-uat.html
+          grep -q 'consecutive master starts choose a fresh random track' /tmp/local-only-uat.html
+          grep -q 'second random track also starts at zero' /tmp/local-only-uat.html
+          grep -q 'old published Spotify default is converted to LOCAL' /tmp/local-only-uat.html
       - name: Uploaded music library UAT
         shell: bash
         run: |
@@ -100,14 +109,14 @@ jobs:
           grep -q 'data-uat="PASS"' /tmp/local-mixer-uat.html
           grep -q 'music slider saves uploaded music gain' /tmp/local-mixer-uat.html
           grep -q 'announcement slider remains independent' /tmp/local-mixer-uat.html
-      - name: Uploaded music one-second fade UAT
+      - name: Uploaded music three-second fade UAT
         shell: bash
         run: |
           CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
-          timeout 40s "$CHROME" --headless=new --no-sandbox --disable-gpu --virtual-time-budget=4000 --dump-dom "http://127.0.0.1:8080/tests/local-stop-fade-uat.html" >/tmp/local-fade-uat.html
+          timeout 40s "$CHROME" --headless=new --no-sandbox --disable-gpu --virtual-time-budget=6000 --dump-dom "http://127.0.0.1:8080/tests/local-stop-fade-uat.html" >/tmp/local-fade-uat.html
           cat /tmp/local-fade-uat.html
           grep -q 'data-uat="PASS"' /tmp/local-fade-uat.html
-          grep -q 'Uploaded music Stop Music fades for about 1 second' /tmp/local-fade-uat.html
+          grep -q 'Uploaded music Stop Music fades for about 3 seconds' /tmp/local-fade-uat.html
           grep -q 'Uploaded music fade reaches zero before pause' /tmp/local-fade-uat.html
           grep -q 'LIVE STOP ALL remains immediate' /tmp/local-fade-uat.html
       - name: Root Home published-game regression

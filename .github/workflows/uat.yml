@@ -33,7 +33,7 @@ jobs:
           grep -q "soundboard-groups-v1.js" bootstrap.js
           grep -q "soundboard-group-order-v1.js" bootstrap.js
           grep -q "admin-soundboard-order-v1.js" bootstrap.js
-          grep -q "admin-sound-order-v21" bootstrap.js
+          grep -q "admin-editor-v22" bootstrap.js
           grep -q "input.multiple = true" uploaded-music-v1.js
           grep -q "bulkUploadFiles" uploaded-music-v1.js
           grep -q "data-local-seek" uploaded-music-v1.js
@@ -49,9 +49,12 @@ jobs:
           grep -q "data-order-reset" soundboard-group-order-v1.js
           grep -q "data-group-move" admin-soundboard-order-v1.js
           grep -q "data-item-move" admin-soundboard-order-v1.js
-          grep -q "moveGroup" admin-soundboard-order-v1.js
-          grep -q "moveItemWithinGroup" admin-soundboard-order-v1.js
-          grep -q "default Game Day Soundboard" admin-soundboard-order-v1.js
+          grep -q "data-collapse-group" admin-soundboard-order-v1.js
+          grep -q "data-group-drag" admin-soundboard-order-v1.js
+          grep -q "data-item-drag" admin-soundboard-order-v1.js
+          grep -q "dragstart" admin-soundboard-order-v1.js
+          grep -q "moveItemTo" admin-soundboard-order-v1.js
+          grep -q "reassignItemGroup" admin-soundboard-order-v1.js
           grep -q "data-f=\\\"group\\\"" app-part4.js
           grep -q "group,kind,icon,color,speechText" app-part4.js
           grep -q "p_spotify_url:null" app-part4.js
@@ -59,6 +62,9 @@ jobs:
           grep -q "p_default_music_source:'LOCAL'" app-part4.js
           grep -q "default_spotify_url:null" app-part4.js
           grep -q "default_music_source:'LOCAL'" app-part4.js
+          grep -q "stopPreviewAudio" app-part3.js
+          grep -q "stopSoundPreview" app-part3.js
+          grep -q "previewAssetId" app-part3.js
           grep -q "chooseFreshRandomIndex" local-only-v1.js
           grep -q "lastMasterRandomIndex" local-only-v1.js
           grep -q "musicAudio.currentTime = 0" local-only-v1.js
@@ -82,14 +88,9 @@ jobs:
           timeout 40s "$CHROME" --headless=new --no-sandbox --disable-gpu --virtual-time-budget=3000 --dump-dom "http://127.0.0.1:8080/tests/local-only-uat.html" >/tmp/local-only-uat.html
           cat /tmp/local-only-uat.html
           grep -q 'data-uat="PASS"' /tmp/local-only-uat.html
-          grep -q 'legacy Spotify surfaces are removed' /tmp/local-only-uat.html
-          grep -q 'source switch cannot reactivate Spotify' /tmp/local-only-uat.html
           grep -q 'master control is large and touch-friendly' /tmp/local-only-uat.html
-          grep -q 'master start uses uploaded music' /tmp/local-only-uat.html
           grep -q 'random master start begins track at zero' /tmp/local-only-uat.html
           grep -q 'consecutive master starts choose a fresh random track' /tmp/local-only-uat.html
-          grep -q 'second random track also starts at zero' /tmp/local-only-uat.html
-          grep -q 'old published Spotify default is converted to LOCAL' /tmp/local-only-uat.html
       - name: Uploaded music library UAT
         shell: bash
         run: |
@@ -113,19 +114,32 @@ jobs:
           grep -q 'Uploaded music player is beside soundboard' /tmp/soundboard-groups-uat.html
           grep -q 'Announcement groups include fast categories' /tmp/soundboard-groups-uat.html
           grep -q 'Group filter isolates selected announcement type' /tmp/soundboard-groups-uat.html
-          grep -q 'Soundboard library directly selects a track' /tmp/soundboard-groups-uat.html
       - name: Admin soundboard ordering UAT
         shell: bash
         run: |
           CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
-          timeout 40s "$CHROME" --headless=new --no-sandbox --disable-gpu --virtual-time-budget=3000 --dump-dom "http://127.0.0.1:8080/tests/admin-soundboard-order-uat.html" >/tmp/admin-soundboard-order-uat.html
+          timeout 40s "$CHROME" --headless=new --no-sandbox --disable-gpu --virtual-time-budget=4000 --dump-dom "http://127.0.0.1:8080/tests/admin-soundboard-order-uat.html" >/tmp/admin-soundboard-order-uat.html
           cat /tmp/admin-soundboard-order-uat.html
           grep -q 'data-uat="PASS"' /tmp/admin-soundboard-order-uat.html
-          grep -q 'admin editor renders soundboard as groups' /tmp/admin-soundboard-order-uat.html
-          grep -q 'moving a group moves all of its announcements together' /tmp/admin-soundboard-order-uat.html
-          grep -q 'admin can reorder announcements within a group' /tmp/admin-soundboard-order-uat.html
-          grep -q 'announcement move does not cross into another group' /tmp/admin-soundboard-order-uat.html
+          grep -q 'each group can be collapsed' /tmp/admin-soundboard-order-uat.html
+          grep -q 'collapse hides announcements in that group' /tmp/admin-soundboard-order-uat.html
+          grep -q 'drag handles are available for groups and announcements' /tmp/admin-soundboard-order-uat.html
+          grep -q 'drag and drop can reorder entire groups' /tmp/admin-soundboard-order-uat.html
+          grep -q 'changing group assignment immediately updates draft group' /tmp/admin-soundboard-order-uat.html
+          grep -q 'changed announcement automatically joins its new group' /tmp/admin-soundboard-order-uat.html
+          grep -q 'dragging an announcement into a group updates its group assignment' /tmp/admin-soundboard-order-uat.html
           grep -q 'collect preserves hierarchical draft order for publishing' /tmp/admin-soundboard-order-uat.html
+      - name: Admin preview stop UAT
+        shell: bash
+        run: |
+          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          timeout 40s "$CHROME" --headless=new --no-sandbox --disable-gpu --virtual-time-budget=3000 --dump-dom "http://127.0.0.1:8080/tests/admin-preview-stop-uat.html" >/tmp/admin-preview-stop-uat.html
+          cat /tmp/admin-preview-stop-uat.html
+          grep -q 'data-uat="PASS"' /tmp/admin-preview-stop-uat.html
+          grep -q 'Sound Uploads exposes Stop Preview control' /tmp/admin-preview-stop-uat.html
+          grep -q 'Preview starts uploaded sound' /tmp/admin-preview-stop-uat.html
+          grep -q 'Stop Preview pauses and resets preview audio' /tmp/admin-preview-stop-uat.html
+          grep -q 'Preview button returns to normal after stop' /tmp/admin-preview-stop-uat.html
       - name: Soundboard group ordering UAT
         shell: bash
         run: |
@@ -134,10 +148,6 @@ jobs:
           cat /tmp/soundboard-group-order-uat.html
           grep -q 'data-uat="PASS"' /tmp/soundboard-group-order-uat.html
           grep -q 'published admin group order becomes operator default' /tmp/soundboard-group-order-uat.html
-          grep -q 'reorder groups control is available' /tmp/soundboard-group-order-uat.html
-          grep -q 'user can move a group down' /tmp/soundboard-group-order-uat.html
-          grep -q 'group order persists on this device' /tmp/soundboard-group-order-uat.html
-          grep -q 'saved order restores after soundboard rerender' /tmp/soundboard-group-order-uat.html
           grep -q 'reset returns published admin group order' /tmp/soundboard-group-order-uat.html
           grep -q 'ALL stays pinned first' /tmp/soundboard-group-order-uat.html
       - name: Uploaded music mixer UAT

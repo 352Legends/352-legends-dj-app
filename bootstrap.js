@@ -1,6 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.112.4';
 window.__createClient=createClient;
 
+// mobile-first-v23 is the predecessor layout; viewport-fit-v24 adds hard containment.
 // Final mobile containment loads after the base styles so dynamically generated
 // Soundboard/Admin/player controls can never widen the page past the visual viewport.
 const mobileContainment=document.createElement('link');

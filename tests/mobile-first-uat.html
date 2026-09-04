@@ -27,6 +27,7 @@ addEventListener('load',()=>setTimeout(()=>{
  const nav=document.querySelector('.gd-group-nav').getBoundingClientRect();
  const app=document.querySelector('.app').getBoundingClientRect();
  const dock=document.querySelector('.dock-inner').getBoundingClientRect();
+ const noOverflow=document.documentElement.scrollWidth<=innerWidth+1;
  ok('mobile viewport is active',innerWidth<=500,String(innerWidth));
  ok('LIVE PLAY uses full-width mobile safety layout',state.minWidth==='0px'&&state.gridTemplateColumns.split(' ').length===1,state.minWidth+' / '+state.gridTemplateColumns);
  ok('mobile mixer stays compact in two columns',mixer.gridTemplateColumns.split(' ').length===2,mixer.gridTemplateColumns);
@@ -40,7 +41,8 @@ addEventListener('load',()=>setTimeout(()=>{
  ok('app shell stays inside visual viewport',app.left>=-1&&app.right<=innerWidth+1,app.left+' / '+app.right+' / '+innerWidth);
  ok('group navigation scroll stays contained',nav.left>=-1&&nav.right<=innerWidth+1,nav.left+' / '+nav.right+' / '+innerWidth);
  ok('fixed music dock stays contained',dock.left>=-1&&dock.right<=innerWidth+1,dock.left+' / '+dock.right+' / '+innerWidth);
- ok('stress-length content does not widen mobile page',document.documentElement.scrollWidth<=innerWidth+1,document.documentElement.scrollWidth+' / '+innerWidth);
+ ok('mobile page has no accidental horizontal overflow',noOverflow,document.documentElement.scrollWidth+' / '+innerWidth);
+ ok('stress-length content does not widen mobile page',noOverflow,document.documentElement.scrollWidth+' / '+innerWidth);
  const pass=results.every(x=>x.pass);document.body.dataset.uat=pass?'PASS':'FAIL';document.getElementById('out').textContent=JSON.stringify(results,null,2);
 },80));
 </script></body></html>

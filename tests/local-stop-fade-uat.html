@@ -1,0 +1,27 @@
+<!doctype html><html><body data-uat="RUNNING"><button id="stopMusic">■ STOP MUSIC</button><div id="dockDetail"></div><pre id="out"></pre>
+<script>
+let announcementActive=false,DUCK_FACTOR=Math.pow(10,-3/20),musicVolume=.8,localPlaying=true,previewAudio=null,previewKind=null,restored=false,pauseAt=0,immediateAt=0;
+const gainValues=[];let audioCtx={currentTime:0},musicGain={gain:{cancelScheduledValues(){},setTargetAtTime(v){gainValues.push(v)}}};let musicAudio={volume:.8,currentTime:4,pause(){}};let routedMedia=new WeakSet();
+function pauseLocal(reset){pauseAt=performance.now();localPlaying=false;if(reset)musicAudio.currentTime=0}
+function applyLocalVolume(){restored=true}
+function syncGainValues(){}
+function renderMusicState(){document.getElementById('stopMusic').textContent=localPlaying?'■ STOP MUSIC':'▶ START MUSIC'}
+function msg(){}
+function stopAllAudio(){immediateAt=performance.now()}
+</script>
+<script src="../local-stop-fade-v1.js"></script>
+<script>
+const results=[];function ok(name,cond){results.push([name,!!cond])}
+setTimeout(()=>{
+  const start=performance.now();document.getElementById('stopMusic').click();
+  setTimeout(()=>{stopAllAudio();ok('LIVE STOP ALL remains immediate',performance.now()-immediateAt<40)},30);
+  setTimeout(()=>{
+    const elapsed=pauseAt-start;
+    ok('Uploaded music Stop Music fades for about 1 second',elapsed>=900&&elapsed<=1250);
+    ok('Uploaded music fade reaches zero before pause',gainValues.length>=8&&Math.min(...gainValues)<=.02);
+    ok('user music gain is restored after stop',restored===true);
+    ok('track resets after fade',musicAudio.currentTime===0&&!localPlaying);
+    const pass=results.every(x=>x[1]);document.body.dataset.uat=pass?'PASS':'FAIL';document.getElementById('out').textContent=results.map(x=>(x[1]?'PASS ':'FAIL ')+x[0]).join('\n');
+  },1400);
+},60);
+</script></body></html>

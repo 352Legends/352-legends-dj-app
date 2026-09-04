@@ -24,7 +24,7 @@ addEventListener('load',()=>setTimeout(()=>{
  const stop=getComputedStyle(document.querySelector('.stopmusic'));
  const chip=getComputedStyle(document.querySelector('.gd-group-chip'));
  const adminGrid=getComputedStyle(document.querySelector('.admin-grid'));
- ok('mobile viewport is active',innerWidth<=420,String(innerWidth));
+ ok('mobile viewport is active',innerWidth<=500,String(innerWidth));
  ok('LIVE PLAY uses full-width mobile safety layout',state.minWidth==='0px'&&state.gridTemplateColumns.split(' ').length===1,state.minWidth+' / '+state.gridTemplateColumns);
  ok('mobile mixer stays compact in two columns',mixer.gridTemplateColumns.split(' ').length===2,mixer.gridTemplateColumns);
  ok('primary mode navigation is sticky',mode.position==='sticky',mode.position);

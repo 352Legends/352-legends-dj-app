@@ -18,6 +18,7 @@ jobs:
           node --check local-stop-fade-v1.js
           node --check uploaded-music-v1.js
           node --check soundboard-groups-v1.js
+          node --check soundboard-group-order-v1.js
           node --check app-part3.js
           node --check app-part4.js
           node --check bootstrap.js
@@ -29,7 +30,8 @@ jobs:
           grep -q "local-stop-fade-v1.js" bootstrap.js
           grep -q "uploaded-music-v1.js" bootstrap.js
           grep -q "soundboard-groups-v1.js" bootstrap.js
-          grep -q "random-music-v19" bootstrap.js
+          grep -q "soundboard-group-order-v1.js" bootstrap.js
+          grep -q "group-order-v20" bootstrap.js
           grep -q "input.multiple = true" uploaded-music-v1.js
           grep -q "bulkUploadFiles" uploaded-music-v1.js
           grep -q "data-local-seek" uploaded-music-v1.js
@@ -38,6 +40,10 @@ jobs:
           grep -q "data-music-up" uploaded-music-v1.js
           grep -q "data-group-filter" soundboard-groups-v1.js
           grep -q "soundboardUploadedMusic" soundboard-groups-v1.js
+          grep -q "gameday.soundboard.groupOrder.v1" soundboard-group-order-v1.js
+          grep -q "REORDER GROUPS" soundboard-group-order-v1.js
+          grep -q "data-order-up" soundboard-group-order-v1.js
+          grep -q "data-order-reset" soundboard-group-order-v1.js
           grep -q "data-f=\\\"group\\\"" app-part4.js
           grep -q "group,kind,icon,color,speechText" app-part4.js
           grep -q "p_spotify_url:null" app-part4.js
@@ -100,6 +106,19 @@ jobs:
           grep -q 'Announcement groups include fast categories' /tmp/soundboard-groups-uat.html
           grep -q 'Group filter isolates selected announcement type' /tmp/soundboard-groups-uat.html
           grep -q 'Soundboard library directly selects a track' /tmp/soundboard-groups-uat.html
+      - name: Soundboard group ordering UAT
+        shell: bash
+        run: |
+          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          timeout 40s "$CHROME" --headless=new --no-sandbox --disable-gpu --virtual-time-budget=3000 --dump-dom "http://127.0.0.1:8080/tests/soundboard-group-order-uat.html" >/tmp/soundboard-group-order-uat.html
+          cat /tmp/soundboard-group-order-uat.html
+          grep -q 'data-uat="PASS"' /tmp/soundboard-group-order-uat.html
+          grep -q 'reorder groups control is available' /tmp/soundboard-group-order-uat.html
+          grep -q 'user can move a group down' /tmp/soundboard-group-order-uat.html
+          grep -q 'group order persists on this device' /tmp/soundboard-group-order-uat.html
+          grep -q 'saved order restores after soundboard rerender' /tmp/soundboard-group-order-uat.html
+          grep -q 'reset returns published default group order' /tmp/soundboard-group-order-uat.html
+          grep -q 'ALL stays pinned first' /tmp/soundboard-group-order-uat.html
       - name: Uploaded music mixer UAT
         shell: bash
         run: |

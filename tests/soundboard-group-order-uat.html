@@ -15,6 +15,9 @@
 <pre id="out"></pre>
 <script>
 let currentGame={slug:'uat-game'};
+const publishedItems=[{group:'Scoring Plays'},{group:'Pre-Game'},{group:'Downs'}];
+function activeSoundboard(){return publishedItems}
+window.__gamedaySoundboardGroupsV1={inferGroup:item=>item.group};
 localStorage.removeItem('gameday.soundboard.groupOrder.v1:uat-game');
 </script>
 <script src="../soundboard-group-order-v1.js"></script>
@@ -23,22 +26,23 @@ const results=[];function ok(name,cond){results.push([name,!!cond])}
 function navOrder(){return Array.from(document.querySelectorAll('.gd-group-nav [data-group-filter]')).map(x=>x.dataset.groupFilter)}
 function sectionOrder(){return Array.from(document.querySelectorAll('.gd-group-stack [data-group-section]')).map(x=>x.dataset.groupSection)}
 setTimeout(()=>{
+  ok('published admin group order becomes operator default',navOrder().join('|')==='ALL|Scoring Plays|Pre-Game|Downs'&&sectionOrder().join('|')==='Scoring Plays|Pre-Game|Downs');
   ok('reorder groups control is available',!!document.querySelector('[data-group-order-toggle]'));
   document.querySelector('[data-group-order-toggle]').click();
   ok('touch-friendly reorder editor opens',!!document.getElementById('gdGroupOrderEditor'));
-  document.querySelector('[data-order-down="Pre-Game"]').click();
-  ok('user can move a group down',navOrder().join('|')==='ALL|Downs|Pre-Game|Scoring Plays');
-  ok('soundboard sections follow saved group order',sectionOrder().join('|')==='Downs|Pre-Game|Scoring Plays');
+  document.querySelector('[data-order-down="Scoring Plays"]').click();
+  ok('user can move a group down',navOrder().join('|')==='ALL|Pre-Game|Scoring Plays|Downs');
+  ok('soundboard sections follow saved group order',sectionOrder().join('|')==='Pre-Game|Scoring Plays|Downs');
   const saved=JSON.parse(localStorage.getItem('gameday.soundboard.groupOrder.v1:uat-game')||'[]');
-  ok('group order persists on this device',saved.join('|')==='Downs|Pre-Game|Scoring Plays');
+  ok('group order persists on this device',saved.join('|')==='Pre-Game|Scoring Plays|Downs');
   const nav=document.querySelector('.gd-group-nav');
   ['Pre-Game','Downs','Scoring Plays'].forEach(group=>nav.appendChild(nav.querySelector(`[data-group-filter="${group}"]`)));
   const stack=document.querySelector('.gd-group-stack');
   ['Pre-Game','Downs','Scoring Plays'].forEach(group=>stack.appendChild(stack.querySelector(`[data-group-section="${group}"]`)));
   window.__gamedayGroupOrderV1.apply();
-  ok('saved order restores after soundboard rerender',navOrder().join('|')==='ALL|Downs|Pre-Game|Scoring Plays'&&sectionOrder().join('|')==='Downs|Pre-Game|Scoring Plays');
+  ok('saved order restores after soundboard rerender',navOrder().join('|')==='ALL|Pre-Game|Scoring Plays|Downs'&&sectionOrder().join('|')==='Pre-Game|Scoring Plays|Downs');
   window.__gamedayGroupOrderV1.reset();
-  ok('reset returns published default group order',navOrder().join('|')==='ALL|Pre-Game|Downs|Scoring Plays'&&sectionOrder().join('|')==='Pre-Game|Downs|Scoring Plays');
+  ok('reset returns published admin group order',navOrder().join('|')==='ALL|Scoring Plays|Pre-Game|Downs'&&sectionOrder().join('|')==='Scoring Plays|Pre-Game|Downs');
   ok('ALL stays pinned first',navOrder()[0]==='ALL');
   const pass=results.every(x=>x[1]);document.body.dataset.uat=pass?'PASS':'FAIL';document.getElementById('out').textContent=results.map(x=>(x[1]?'PASS ':'FAIL ')+x[0]).join('\n');
 },180);

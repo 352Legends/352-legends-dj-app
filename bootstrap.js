@@ -115,7 +115,7 @@ function disconnectSpotifySession(){
 
 const callbackHandled=await handleServerSpotifyCallback();
 if(!callbackHandled){
-  for(const src of ['./core-v3.js?v=uploaded-music-v16','./spotify-playback-v4.js?v=uploaded-music-v16','./spotify-browser-player-v6.js?v=uploaded-music-v16','./gameday-mixer-v1.js?v=uploaded-music-v16','./ios-volume-output-v1.js?v=uploaded-music-v16','./music-stop-fade-v1.js?v=uploaded-music-v16','./app-part4.js?v=uploaded-music-v16','./app-part3.js?v=uploaded-music-v16','./uploaded-music-v1.js?v=uploaded-music-v16']){
+  for(const src of ['./core-v3.js?v=soundboard-groups-v17','./spotify-playback-v4.js?v=soundboard-groups-v17','./spotify-browser-player-v6.js?v=soundboard-groups-v17','./gameday-mixer-v1.js?v=soundboard-groups-v17','./ios-volume-output-v1.js?v=soundboard-groups-v17','./music-stop-fade-v1.js?v=soundboard-groups-v17','./app-part4.js?v=soundboard-groups-v17','./app-part3.js?v=soundboard-groups-v17','./uploaded-music-v1.js?v=soundboard-groups-v17','./soundboard-groups-v1.js?v=soundboard-groups-v17']){
     await new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=()=>reject(new Error('Failed to load '+src));document.body.appendChild(s);});
   }
   const params=new URLSearchParams(location.search);

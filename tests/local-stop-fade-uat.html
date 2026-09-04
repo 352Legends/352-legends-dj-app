@@ -17,11 +17,11 @@ setTimeout(()=>{
   setTimeout(()=>{stopAllAudio();ok('LIVE STOP ALL remains immediate',performance.now()-immediateAt<40)},30);
   setTimeout(()=>{
     const elapsed=pauseAt-start;
-    ok('Uploaded music Stop Music fades for about 1 second',elapsed>=900&&elapsed<=1250);
-    ok('Uploaded music fade reaches zero before pause',gainValues.length>=8&&Math.min(...gainValues)<=.02);
+    ok('Uploaded music Stop Music fades for about 3 seconds',elapsed>=2850&&elapsed<=3350);
+    ok('Uploaded music fade reaches zero before pause',gainValues.length>=25&&Math.min(...gainValues)<=.02);
     ok('user music gain is restored after stop',restored===true);
     ok('track resets after fade',musicAudio.currentTime===0&&!localPlaying);
     const pass=results.every(x=>x[1]);document.body.dataset.uat=pass?'PASS':'FAIL';document.getElementById('out').textContent=results.map(x=>(x[1]?'PASS ':'FAIL ')+x[0]).join('\n');
-  },1400);
+  },3550);
 },60);
 </script></body></html>

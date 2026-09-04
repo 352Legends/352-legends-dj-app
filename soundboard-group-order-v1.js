@@ -29,6 +29,20 @@
       .filter(group => group && group !== 'ALL');
   }
 
+  function publishedOrder(groups = visibleGroups()) {
+    const current = Array.from(new Set(groups));
+    const found = [];
+    try {
+      const infer = window.__gamedaySoundboardGroupsV1?.inferGroup;
+      const items = typeof activeSoundboard === 'function' ? activeSoundboard() : [];
+      for (const item of items) {
+        const group = String((typeof infer === 'function' ? infer(item) : item?.group) || '').trim();
+        if (group && current.includes(group) && !found.includes(group)) found.push(group);
+      }
+    } catch (_e) {}
+    return [...found, ...current.filter(group => !found.includes(group))];
+  }
+
   function readSavedOrder() {
     try {
       const value = JSON.parse(localStorage.getItem(gameKey()) || 'null');
@@ -43,8 +57,9 @@
   function reconciledOrder(groups = visibleGroups()) {
     const current = Array.from(new Set(groups));
     if (!current.length) return [];
+    const base = publishedOrder(current);
     const saved = readSavedOrder().filter(group => current.includes(group));
-    return [...saved, ...current.filter(group => !saved.includes(group))];
+    return saved.length ? [...saved, ...base.filter(group => !saved.includes(group))] : base;
   }
 
   function captureDefault(groups) {
@@ -92,9 +107,9 @@
       bar.className = 'gd-group-order-bar';
       n.before(bar);
     }
-    const state = editing ? 'editing' : 'closed';
-    if (bar.dataset.state !== state) {
-      bar.dataset.state = state;
+    const snapshot = `${editing}|${order.join('\u0001')}`;
+    if (bar.dataset.snapshot !== snapshot) {
+      bar.dataset.snapshot = snapshot;
       bar.innerHTML = `<div><b>Soundboard Groups</b><small>Arrange categories for this device.</small></div><button type="button" data-group-order-toggle>${editing?'DONE':'⇅ REORDER GROUPS'}</button>`;
       bar.querySelector('[data-group-order-toggle]')?.addEventListener('click', () => {
         editing = !editing;
@@ -137,7 +152,7 @@
   function applyOrder() {
     const groups = visibleGroups();
     if (!groups.length) return;
-    captureDefault(groups);
+    captureDefault(publishedOrder(groups));
     const order = reconciledOrder(groups);
     applySpecificOrder(order);
   }
@@ -158,8 +173,8 @@
   function resetOrder() {
     try { localStorage.removeItem(gameKey()); } catch (_e) {}
     const current = visibleGroups();
-    const base = defaultsByKey.get(gameKey()) || current;
-    const order = [...base.filter(group => current.includes(group)), ...current.filter(group => !base.includes(group))];
+    const order = publishedOrder(current);
+    defaultsByKey.set(gameKey(), order.slice());
     applySpecificOrder(order);
     const editor = el('gdGroupOrderEditor');
     if (editor) editor.dataset.snapshot = '';
@@ -193,6 +208,7 @@
     apply: applyOrder,
     move,
     reset: resetOrder,
-    state: () => ({ key: gameKey(), editing, order: reconciledOrder() })
+    publishedOrder,
+    state: () => ({ key: gameKey(), editing, order: reconciledOrder(), publishedOrder: publishedOrder() })
   };
 })();

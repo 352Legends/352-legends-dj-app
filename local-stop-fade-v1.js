@@ -1,5 +1,5 @@
 (() => {
-  const FADE_MS = 1000;
+  const FADE_MS = 3000;
   const STEP_MS = 100;
   let fading = false;
   const el = id => document.getElementById(id);
@@ -18,9 +18,13 @@
       if (active) {
         b.textContent = 'FADING OUT…';
         b.setAttribute('aria-busy','true');
-      } else b.removeAttribute('aria-busy');
+        b.setAttribute('aria-label','Music fading out over 3 seconds');
+      } else {
+        b.removeAttribute('aria-busy');
+        b.setAttribute('aria-label','Start a random uploaded music track');
+      }
     }
-    if (active && el('dockDetail')) el('dockDetail').textContent = 'Music fading out • 1 sec';
+    if (active && el('dockDetail')) el('dockDetail').textContent = 'Music fading out • 3 sec';
   }
 
   async function fadeLocal(level) {

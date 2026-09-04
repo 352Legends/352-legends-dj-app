@@ -1,0 +1,41 @@
+<!doctype html><html><head></head><body data-uat="RUNNING"><div id="soundEditor"></div><pre id="out"></pre>
+<script>
+window.__errors=[];window.addEventListener('error',e=>__errors.push(String(e.message||e.error)));
+const soundGroupPresets=['Pre-Game','Downs','Sponsors'];
+const effectIcons=[['','No icon'],['📣','Megaphone']];
+const palette={orange:{},green:{},blue:{},slate:{}};
+let soundboardDraft=[
+{id:'pre1',label:'Welcome',eyebrow:'PRE',group:'Pre-Game',kind:'announcement',icon:'',color:'orange',assetId:'',speechText:'Welcome'},
+{id:'down1',label:'First Down',eyebrow:'DOWN',group:'Downs',kind:'announcement',icon:'',color:'green',assetId:'',speechText:'First down'},
+{id:'down2',label:'Third Down',eyebrow:'DOWN',group:'Downs',kind:'announcement',icon:'',color:'green',assetId:'',speechText:'Third down'},
+{id:'sponsor1',label:'Sponsor',eyebrow:'SPONSOR',group:'Sponsors',kind:'announcement',icon:'',color:'blue',assetId:'',speechText:'Thanks sponsor'}
+];
+const $=id=>document.getElementById(id);
+const escapeHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function inferAdminSoundGroup(item){return String(item?.group||'Other')}
+function normalizeSoundItem(item){return {...item,kind:item.kind==='effect'?'effect':'announcement'}}
+function soundAssets(){return []}
+function collectSoundEditor(){}
+function renderSoundEditor(){}
+</script>
+<script src="../admin-soundboard-order-v1.js"></script>
+<script>
+const results=[];const ok=(name,cond,detail='')=>results.push({name,pass:!!cond,detail});
+const ids=()=>soundboardDraft.map(x=>x.id).join('|');
+const groups=()=>window.__gamedayAdminSoundboardOrderV1.state().groups.join('|');
+setTimeout(()=>{
+  ok('admin editor renders soundboard as groups',document.querySelectorAll('[data-admin-group]').length===3,String(document.querySelectorAll('[data-admin-group]').length));
+  ok('admin can reorder whole soundboard groups',!!document.querySelector('[data-admin-group="Downs"] [data-group-move="up"]'));
+  document.querySelector('[data-admin-group="Downs"] [data-group-move="up"]')?.click();
+  ok('moving a group moves all of its announcements together',groups()==='Downs|Pre-Game|Sponsors'&&ids()==='down1|down2|pre1|sponsor1',groups()+' / '+ids());
+  document.querySelector('[data-item="down2"] [data-item-move="up"]')?.click();
+  ok('admin can reorder announcements within a group',ids()==='down2|down1|pre1|sponsor1',ids());
+  ok('announcement move does not cross into another group',soundboardDraft.slice(0,2).every(x=>x.group==='Downs')&&soundboardDraft[2].group==='Pre-Game',ids());
+  const first=document.querySelector('[data-admin-group="Downs"] [data-item]');
+  ok('editor visibly reflects announcement order',first?.dataset.item==='down2',first?.dataset.item||'');
+  collectSoundEditor();
+  ok('collect preserves hierarchical draft order for publishing',ids()==='down2|down1|pre1|sponsor1',ids());
+  ok('no page errors',__errors.length===0,JSON.stringify(__errors));
+  document.getElementById('out').textContent=JSON.stringify(results,null,2);document.body.dataset.uat=results.every(x=>x.pass)?'PASS':'FAIL';
+},120);
+</script></body></html>

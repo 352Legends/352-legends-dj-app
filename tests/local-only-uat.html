@@ -1,18 +1,20 @@
 <!doctype html><html><body data-uat="RUNNING">
 <div class="spotify-connect-row">legacy connect</div><div class="spotify-shell">legacy player</div><div class="soundboard-music-launch">legacy start</div>
-<div id="dockSource"></div><button id="localSourceBtn"></button><div id="musicVolume" class="mixer-control"></div>
+<div id="dockSource"></div><div id="dockDetail"></div><button id="stopMusic">▶ START MUSIC</button><button id="localSourceBtn"></button><div id="musicVolume" class="mixer-control"></div>
 <pre id="out"></pre>
 <script>
-let musicSource='SPOTIFY',musicVolume=.72,gameState='BREAK',localPlaying=false,playCalls=0,renderCalls=0,loadCalls=0;
-let currentGame={defaultMusicSource:'SPOTIFY',spotifyUrl:'https://example.test/playlist',spotifyClientId:'legacy-client',musicTracks:[{name:'Track 1'}]};
+let musicSource='SPOTIFY',musicVolume=.72,gameState='BREAK',localPlaying=false,playCalls=0,renderCalls=0,loadCalls=0,musicIndex=0,musicAudio={currentTime:44,pause(){window.previousPaused=true}};
+let playedIndexes=[],playedStarts=[];
+let currentGame={defaultMusicSource:'SPOTIFY',spotifyUrl:'https://example.test/playlist',spotifyClientId:'legacy-client',musicTracks:[{name:'Track 1'},{name:'Track 2'},{name:'Track 3'}]};
 let spotifyPlayer={disconnect(){window.disconnected=true}},spotifySdkReady=true,spotifySdkDeviceId='sdk1',spotifySelectedDeviceId='sdk1',spotifyPlayback={item:{}},spotifyPlaying=true;
 function localTracks(){return currentGame.musicTracks||[]}
-function playLocal(){playCalls++;localPlaying=true}
+function playLocal(){playCalls++;localPlaying=true;musicAudio={currentTime:0,pause(){}};playedIndexes.push(musicIndex);playedStarts.push(musicAudio.currentTime);return true}
 function renderLocalTracks(){}
-function renderMusicState(){renderCalls++;document.getElementById('dockSource').textContent=musicSource==='LOCAL'?'Uploaded Music':'Legacy'}
+function renderMusicState(){renderCalls++;document.getElementById('dockSource').textContent=musicSource==='LOCAL'?'Uploaded Music':'Legacy';document.getElementById('stopMusic').textContent=localPlaying?'■ STOP MUSIC':'▶ START MUSIC'}
 function setMusicSource(source){musicSource=source}
 function musicIsPlaying(){return musicSource==='LOCAL'?localPlaying:spotifyPlaying}
 function startMasterMusic(){return null}
+function ensureAudioGraph(){}
 function setMixerStatus(){}
 function msg(){}
 async function loadPublishedGame(){loadCalls++;currentGame={defaultMusicSource:'SPOTIFY',spotifyUrl:'legacy',spotifyClientId:'legacy',musicTracks:[{name:'A'},{name:'B'}]};musicSource='SPOTIFY';renderMusicState();}
@@ -24,8 +26,14 @@ setTimeout(async()=>{
   ok('legacy Spotify surfaces are removed',document.querySelectorAll('.spotify-connect-row,.spotify-shell,.soundboard-music-launch').length===0);
   ok('initial Spotify source is forced to Uploaded Music',musicSource==='LOCAL');
   ok('legacy Spotify player is disconnected',window.disconnected===true&&spotifyPlayer===null);
+  ok('master control is large and touch-friendly',document.getElementById('stopMusic').classList.contains('gd-random-master'));
   setMusicSource('SPOTIFY');ok('source switch cannot reactivate Spotify',musicSource==='LOCAL');
-  localPlaying=false;startMasterMusic();ok('master start uses uploaded music',playCalls===1&&localPlaying===true);
+  localPlaying=false;startMasterMusic();const first=playedIndexes[0];
+  ok('master start uses uploaded music',playCalls===1&&localPlaying===true);
+  ok('random master start begins track at zero',playedStarts[0]===0&&musicAudio.currentTime===0);
+  localPlaying=false;startMasterMusic();const second=playedIndexes[1];
+  ok('consecutive master starts choose a fresh random track',playedIndexes.length===2&&first!==second);
+  ok('second random track also starts at zero',playedStarts[1]===0&&musicAudio.currentTime===0);
   await loadPublishedGame('legacy');
   ok('old published Spotify default is converted to LOCAL',currentGame.defaultMusicSource==='LOCAL'&&musicSource==='LOCAL');
   ok('legacy published Spotify metadata is nulled',currentGame.spotifyUrl===null&&currentGame.spotifyClientId===null);

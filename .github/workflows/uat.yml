@@ -18,15 +18,23 @@ jobs:
           node --check gameday-mixer-v1.js
           node --check ios-volume-output-v1.js
           node --check music-stop-fade-v1.js
+          node --check uploaded-music-v1.js
           node --check app-part3.js
           node --check app-part4.js
           node --check bootstrap.js
-          ! grep -R "open.spotify.com/embed\|iframe-api/v1" core-v3.js spotify-playback-v4.js spotify-browser-player-v6.js gameday-mixer-v1.js ios-volume-output-v1.js music-stop-fade-v1.js index.html bootstrap.js
+          ! grep -R "open.spotify.com/embed\|iframe-api/v1" core-v3.js spotify-playback-v4.js spotify-browser-player-v6.js gameday-mixer-v1.js ios-volume-output-v1.js music-stop-fade-v1.js uploaded-music-v1.js index.html bootstrap.js
           ! grep -E "sprint[0-9]|core-v2" bootstrap.js
           ! grep -q "installAppleSdkBlocker" bootstrap.js
           grep -q "gameday-mixer-v1.js" bootstrap.js
           grep -q "ios-volume-output-v1.js" bootstrap.js
           grep -q "music-stop-fade-v1.js" bootstrap.js
+          grep -q "uploaded-music-v1.js" bootstrap.js
+          grep -q "input.multiple = true" uploaded-music-v1.js
+          grep -q "bulkUploadFiles" uploaded-music-v1.js
+          grep -q "data-local-seek" uploaded-music-v1.js
+          grep -q "data-local-shuffle" uploaded-music-v1.js
+          grep -q "data-local-repeat" uploaded-music-v1.js
+          grep -q "data-music-up" uploaded-music-v1.js
           grep -q "supports_volume" ios-volume-output-v1.js
           grep -q "USE .*VOLUME-CAPABLE DEVICE\|volume-controllable Spotify Connect output" ios-volume-output-v1.js
           grep -q "FADE_MS = 1000" music-stop-fade-v1.js
@@ -62,6 +70,19 @@ jobs:
           grep -q 'data-uat="PASS"' /tmp/uat-dom.html
           grep -q 'Start Playback targets exact browser SDK device' /tmp/uat-dom.html
           grep -q 'active phone is overridden by GameDay Browser Player' /tmp/uat-dom.html
+      - name: Uploaded music library UAT
+        shell: bash
+        run: |
+          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          timeout 40s "$CHROME" --headless=new --no-sandbox --disable-gpu --virtual-time-budget=6000 --dump-dom "http://127.0.0.1:8080/tests/uploaded-music-uat.html" >/tmp/uploaded-music-uat.html
+          cat /tmp/uploaded-music-uat.html
+          grep -q 'data-uat="PASS"' /tmp/uploaded-music-uat.html
+          grep -q 'bulk music input accepts multiple files' /tmp/uploaded-music-uat.html
+          grep -q 'operator can select an exact uploaded track' /tmp/uploaded-music-uat.html
+          grep -q 'operator can seek within uploaded track' /tmp/uploaded-music-uat.html
+          grep -q 'LIVE PLAY blocks uploaded music start' /tmp/uploaded-music-uat.html
+          grep -q 'bulk upload accepts multiple audio tracks in one action' /tmp/uploaded-music-uat.html
+          grep -q 'admin can reorder published uploaded tracks' /tmp/uploaded-music-uat.html
       - name: Desktop Spotify mixer UAT
         shell: bash
         run: |
